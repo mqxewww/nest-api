@@ -1,4 +1,5 @@
 import { defineConfig } from "@mikro-orm/core";
+import findOneOrFailHandler from "~common/handlers/find-one-or-fail.handler";
 
 export default defineConfig({
   type: "mysql",
@@ -10,5 +11,6 @@ export default defineConfig({
   entities: ["./dist/**/entities/*.entity.js"],
   entitiesTs: ["./src/**/entities/*.entity.ts"],
   allowGlobalContext: false,
-  timezone: "+00:00"
+  timezone: "+00:00",
+  findOneOrFailHandler: findOneOrFailHandler
 });
