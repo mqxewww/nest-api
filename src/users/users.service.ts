@@ -11,8 +11,6 @@ export class UsersService {
   ) {}
 
   public async findByUuid(uuid: string): Promise<User> {
-    const user = await this.usersRepository.findOneOrFail({ uuid });
-
-    return user;
+    return await this.usersRepository.findOneOrFail({ uuid });
   }
 }

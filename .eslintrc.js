@@ -11,8 +11,13 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: "module"
   },
-  plugins: ["@typescript-eslint/eslint-plugin"],
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  plugins: ["@typescript-eslint/eslint-plugin", "sonarjs"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:sonarjs/recommended",
+    "prettier"
+  ],
   ignorePatterns: [".eslintrc.js", "dist", "node_modules"],
   overrides: [
     {
