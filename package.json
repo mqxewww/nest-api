@@ -1,28 +1,25 @@
 {
   "name": "nest-api",
   "version": "0.0.1",
-  "description": "NestJS api with various features.",
+  "description": "NestJS API where I try everything that comes to mind.",
   "author": "NOIZET Maxence <noizetmaxencepro@gmail.com>",
   "private": true,
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write . && eslint \"{src,apps,libs,test}/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "prettier": "prettier --write .",
+    "mikro-orm-schema-update": "npx --yes mikro-orm schema:update --run",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "docker:init": "docker-compose up --detach",
-    "mikro-orm-schema-update": "npx --yes mikro-orm schema:update --run"
+    "docker:init": "docker-compose up --detach"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.0.2",
     "@mikro-orm/cli": "^5.7.14",
     "@mikro-orm/core": "^5.7.14",
     "@mikro-orm/mysql": "^5.7.14",
@@ -42,8 +39,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1",
-    "uuid": "^9.0.0"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -56,7 +52,6 @@
     "@types/passport-jwt": "^3.0.9",
     "@types/passport-local": "^1.0.35",
     "@types/supertest": "^2.0.12",
-    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.42.0",
