@@ -1,3 +1,4 @@
+import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import pJson from "../package.json";
@@ -19,6 +20,8 @@ async function bootstrap(): Promise<void> {
       persistAuthorization: true
     }
   });
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(+process.env.API_PORT);
 }

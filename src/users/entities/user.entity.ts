@@ -9,7 +9,7 @@ export class User extends UuidAndDates {
   @Property()
   public last_name: string;
 
-  @Property()
+  @Property({ unique: true })
   public login: string;
 
   @Property()
