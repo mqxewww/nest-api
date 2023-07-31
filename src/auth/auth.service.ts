@@ -44,6 +44,6 @@ export class AuthService {
 
     const areParametersValid = user && bcrypt.compareSync(password, user.password);
 
-    return areParametersValid ? user : null;
+    return areParametersValid ? ({ ...user, password: undefined } as Omit<User, "password">) : null;
   }
 }

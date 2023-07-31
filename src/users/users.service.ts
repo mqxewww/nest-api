@@ -10,10 +10,6 @@ export class UsersService {
     private readonly usersRepository: EntityRepository<User>
   ) {}
 
-  public async findByUuid(uuid: string): Promise<User> {
-    return await this.usersRepository.findOneOrFail({ uuid });
-  }
-
   public async findOne(search: string): Promise<User | null> {
     return await this.usersRepository.findOne({
       $or: [{ uuid: search }, { login: search }]
