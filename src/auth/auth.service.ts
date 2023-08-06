@@ -2,9 +2,9 @@ import { EntityRepository } from "@mikro-orm/core";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { Injectable } from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
-import { RegisterDTO } from "../users/dto/inbound/register.dto";
 import { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
+import { RegisterDTO } from "./dto/inbound/register.dto";
 
 @Injectable()
 export class AuthService {
