@@ -5,7 +5,7 @@ import pJson from "../package.json";
 import { AppModule } from "./app.module";
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle("Documentation for nest-api")
@@ -19,6 +19,11 @@ async function bootstrap(): Promise<void> {
     swaggerOptions: {
       persistAuthorization: true
     }
+  });
+
+  app.enableCors({
+    credentials: true,
+    origin: ["nest-api.apps.mqxewww.dev", "localhost:3000"]
   });
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
