@@ -1,5 +1,5 @@
 import { Entity, Property } from "@mikro-orm/core";
-import { UuidAndDates } from "~common/entities/uuid-and-dates.entity";
+import { UuidAndDates } from "../../common/entities/uuid-and-dates.entity";
 
 @Entity({ tableName: "users" })
 export class User extends UuidAndDates {

@@ -1,5 +1,5 @@
 import { defineConfig } from "@mikro-orm/core";
-import findOneOrFailHandler from "~common/handlers/find-one-or-fail.handler";
+import findOneOrFailHandler from "./src/common/handlers/find-one-or-fail.handler";
 
 export default defineConfig({
   type: "mysql",
