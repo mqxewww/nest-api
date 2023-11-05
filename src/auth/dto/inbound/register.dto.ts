@@ -1,14 +1,15 @@
 import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
 
 export class RegisterDTO {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   public first_name: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   public last_name: string;
 
+  @IsNotEmpty()
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,

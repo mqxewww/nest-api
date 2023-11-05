@@ -14,4 +14,9 @@ export class User extends UuidAndDates {
 
   @Property()
   public password: string;
+
+  public constructor(values: Partial<User>) {
+    super();
+    Object.assign(this, values);
+  }
 }

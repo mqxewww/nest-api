@@ -9,10 +9,12 @@ import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 20
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20
+      }
+    ]),
     ConfigModule.forRoot({
       envFilePath: ".env",
       isGlobal: true,

@@ -1,17 +1,13 @@
-import { EntityRepository } from "@mikro-orm/core";
-import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityManager } from "@mikro-orm/mysql";
 import { Injectable } from "@nestjs/common";
 import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UsersService {
-  public constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: EntityRepository<User>
-  ) {}
+  public constructor(private readonly em: EntityManager) {}
 
   public async findOne(search: string): Promise<User | null> {
-    return await this.usersRepository.findOne({
+    return await this.em.findOne(User, {
       $or: [{ uuid: search }, { login: search }]
     });
   }

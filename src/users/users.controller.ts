@@ -8,12 +8,12 @@ import { UsersService } from "./users.service";
 export class UsersController {
   public constructor(private readonly usersService: UsersService) {}
 
-  @Get("/find-one/:search")
+  @Get("find-one/:search")
   public async findOne(@Param("search") search: string): Promise<UserDTO> {
     const user = await this.usersService.findOne(search);
 
     if (!user) throw new NotFoundException("User not found");
 
-    return UserDTO.fromEntity(user);
+    return UserDTO.from(user);
   }
 }

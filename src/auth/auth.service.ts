@@ -1,5 +1,4 @@
-import { EntityRepository } from "@mikro-orm/core";
-import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityManager } from "@mikro-orm/mysql";
 import { Injectable } from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
 import { User } from "../users/entities/user.entity";
@@ -10,40 +9,40 @@ import { RegisterDTO } from "./dto/inbound/register.dto";
 export class AuthService {
   public constructor(
     private readonly usersService: UsersService,
-
-    @InjectRepository(User)
-    private readonly usersRepository: EntityRepository<User>
+    private readonly em: EntityManager
   ) {}
 
-  public async register(registerDto: RegisterDTO): Promise<User> {
+  public async register(body: RegisterDTO): Promise<User> {
     let login: string;
 
     for (let i = 0; ; i++) {
       login =
         i === 0
-          ? `${registerDto.first_name}.${registerDto.last_name}`.toLowerCase()
-          : `${registerDto.first_name}.${registerDto.last_name}${i}`.toLowerCase();
+          ? `${body.first_name}.${body.last_name}`.toLowerCase()
+          : `${body.first_name}.${body.last_name}${i}`.toLowerCase();
 
-      const user = await this.usersRepository.findOne({ login });
+      const user = await this.em.findOne(User, { login });
 
       if (!user) break;
     }
 
-    return await this.usersRepository.upsert({
-      ...registerDto,
+    const userEntity = new User({
+      first_name: body.first_name,
+      last_name: body.last_name,
       login,
-      password: hashSync(registerDto.password, 10)
+      password: hashSync(body.password, 10)
     });
+
+    await this.em.persistAndFlush(userEntity);
+
+    return userEntity;
   }
 
-  public async validateUser(
-    login: string,
-    password: string
-  ): Promise<Omit<User, "password"> | null> {
+  public async validateUser(login: string, password: string): Promise<User | null> {
     const user = await this.usersService.findOne(login);
 
     const areParametersValid = user && bcrypt.compareSync(password, user.password);
 
-    return areParametersValid ? ({ ...user, password: undefined } as Omit<User, "password">) : null;
+    return areParametersValid ? user : null;
   }
 }
