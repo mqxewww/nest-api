@@ -1,5 +1,5 @@
 import { defineConfig } from "@mikro-orm/core";
-import findOneOrFailHandler from "./src/common/handlers/find-one-or-fail.handler";
+import { NotFoundException } from "@nestjs/common";
 
 export default defineConfig({
   type: "mysql",
@@ -12,5 +12,7 @@ export default defineConfig({
   entitiesTs: ["./src/**/entities/*.entity.ts"],
   allowGlobalContext: false,
   timezone: "+00:00",
-  findOneOrFailHandler: findOneOrFailHandler
+  findOneOrFailHandler: (entityName: string) => {
+    throw new NotFoundException(`${entityName} not found`);
+  }
 });
