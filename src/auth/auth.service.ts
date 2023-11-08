@@ -1,6 +1,7 @@
 import { EntityManager } from "@mikro-orm/mysql";
 import { Injectable } from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
+import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
 import { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
 import { RegisterDTO } from "./dto/inbound/register.dto";
@@ -13,18 +14,10 @@ export class AuthService {
   ) {}
 
   public async register(body: RegisterDTO): Promise<User> {
-    let login: string;
-
-    for (let i = 0; ; i++) {
-      login =
-        i === 0
-          ? `${body.first_name}.${body.last_name}`.toLowerCase()
-          : `${body.first_name}.${body.last_name}${i}`.toLowerCase();
-
-      const user = await this.em.findOne(User, { login });
-
-      if (!user) break;
-    }
+    const login = await formatUserLoginHelper(body.first_name, body.last_name, async (login) => {
+      // Login is valid if it's not already taken
+      return !(await this.em.findOne(User, { login }));
+    });
 
     const userEntity = new User({
       first_name: body.first_name,
