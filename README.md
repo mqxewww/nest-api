@@ -15,5 +15,6 @@ npm run mikro-orm-schema-update
 ## Features :sparkles:
 
 - [x] Password hashing with bcrypt
+- [x] Seeders with @mikro-orm/seeder
 
 ~ mqxewww, 2023
