@@ -8,8 +8,8 @@ export default async (
   for (let i = 0; ; i++) {
     login =
       i === 0
-        ? `${firstName}.${lastName}`.toLowerCase()
-        : `${firstName}.${lastName}${i}`.toLowerCase();
+        ? `${firstName}.${lastName}`.toLowerCase().replace(" ", "")
+        : `${firstName}.${lastName}${i}`.toLowerCase().replace(" ", "");
 
     const isValid = await verifier(login);
 
