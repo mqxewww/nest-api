@@ -14,10 +14,7 @@
       {
         "name": "@nestjs/swagger",
         "options": {
-          "dtoFileNameSuffix": [".dto.ts", ".entity.ts"],
-          "controllerFileNameSuffix": ".controller.ts",
-          "classValidatorShim": true,
-          "controllerKeyOfComment": "description",
+          "controllerKeyOfComment": "summary",
           "introspectComments": true
         }
       }

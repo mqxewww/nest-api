@@ -14,23 +14,30 @@ export class AuthService {
   ) {}
 
   public async register(body: RegisterDTO): Promise<User> {
-    const login = await formatUserLoginHelper(body.first_name, body.last_name, async (login) => {
+    const user = new User({
+      first_name: body.first_name,
+      last_name: body.last_name,
+      password: hashSync(body.password, 10)
+    });
+
+    const login = await formatUserLoginHelper(user.first_name, user.last_name, async (login) => {
       // Login is valid if it's not already taken
       return !(await this.em.findOne(User, { login }));
     });
 
-    const userEntity = new User({
-      first_name: body.first_name,
-      last_name: body.last_name,
-      login,
-      password: hashSync(body.password, 10)
-    });
+    user.login = login;
 
-    await this.em.persistAndFlush(userEntity);
+    await this.em.persistAndFlush(user);
 
-    return userEntity;
+    return user;
   }
 
+  /**
+   * Validates a user's login credentials.
+   * @param login The user's login.
+   * @param password The user's password.
+   * @returns The user if the credentials are valid, null otherwise.
+   */
   public async validateUser(login: string, password: string): Promise<User | null> {
     const user = await this.usersService.findOne(login);
 

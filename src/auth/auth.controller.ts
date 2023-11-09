@@ -10,6 +10,11 @@ import { RegisterDTO } from "./dto/inbound/register.dto";
 export class AuthController {
   public constructor(private readonly authService: AuthService) {}
 
+  /**
+   * Registers a new user.
+   * @param body - The registration data.
+   * @returns The registered user.
+   */
   @Post("register")
   public async register(@Body() body: RegisterDTO): Promise<UserDTO> {
     const user = await this.authService.register(body);
@@ -17,6 +22,11 @@ export class AuthController {
     return UserDTO.from(user);
   }
 
+  /**
+   * Logs in a user with the provided credentials.
+   * @param body - The login credentials.
+   * @returns A boolean indicating whether the login was successful.
+   */
   @Post("login")
   public async login(@Body() body: LoginDTO): Promise<boolean> {
     const user = await this.authService.validateUser(body.login, body.password);
