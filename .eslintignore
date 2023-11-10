@@ -41,3 +41,6 @@ lerna-debug.log*
 
 # JSON files
 *.json
+
+# Config
+config

@@ -10,12 +10,6 @@ import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 20
-      }
-    ]),
     ConfigModule.forRoot({
       envFilePath: ".env",
       isGlobal: true,
@@ -25,7 +19,8 @@ import { UsersModule } from "./users/users.module";
         DATABASE_PORT: Joi.number().required(),
         DATABASE_USERNAME: Joi.string().required(),
         DATABASE_PASSWORD: Joi.string().allow("").required(),
-        DATABASE_NAME: Joi.string().default("nest-api")
+        DATABASE_NAME: Joi.string().default("nest-api"),
+        TOKEN_EXPIRES_IN: Joi.string()
       })
     }),
     LoggerModule.forRoot({
@@ -39,6 +34,12 @@ import { UsersModule } from "./users/users.module";
         }
       }
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20
+      }
+    ]),
     MikroOrmModule.forRoot(),
     AuthModule,
     UsersModule
