@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import Joi from "joi";
+import { LoggerModule } from "nestjs-pino";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 
@@ -26,6 +27,17 @@ import { UsersModule } from "./users/users.module";
         DATABASE_PASSWORD: Joi.string().allow("").required(),
         DATABASE_NAME: Joi.string().default("nest-api")
       })
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        customProps: () => ({
+          context: "HTTP"
+        }),
+        transport: {
+          target: "pino-pretty",
+          options: { singleLine: true }
+        }
+      }
     }),
     MikroOrmModule.forRoot(),
     AuthModule,

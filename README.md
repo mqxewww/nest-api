@@ -16,5 +16,7 @@ npm run mikro-orm-schema-update
 
 - [x] Password hashing with bcrypt
 - [x] Seeders with @mikro-orm/seeder
+- [x] Documentation with @nestjs/swagger
+- [x] Logging with nestjs-pino and pino-pretty
 
 ~ mqxewww, 2023

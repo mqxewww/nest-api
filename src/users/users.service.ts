@@ -25,11 +25,11 @@ export class UsersService {
 
     const [users, count] = await Promise.all([
       this.em.find(User, queryFilters, {
-        limit: query.limit,
+        limit: query.limit || 5,
         offset: query.offset,
         orderBy: { created_at: "DESC" }
       }),
-      this.em.count(User)
+      this.em.count(User, queryFilters)
     ]);
 
     return EntitiesAndCount.from(
