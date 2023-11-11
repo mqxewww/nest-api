@@ -13,7 +13,7 @@ import { AuthService } from "./auth.service";
       useFactory: (configService: ConfigService) => {
         return {
           global: true,
-          publicKey: fs.readFileSync("./config/private_key.pem"),
+          publicKey: fs.readFileSync("./config/public_key.pem"),
           privateKey: fs.readFileSync("./config/private_key.pem"),
           signOptions: {
             algorithm: "RS256",

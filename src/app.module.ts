@@ -11,7 +11,7 @@ import { UsersModule } from "./users/users.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ".env",
+      envFilePath: "./config/.env",
       isGlobal: true,
       validationSchema: Joi.object({
         API_PORT: Joi.number().default(3000),

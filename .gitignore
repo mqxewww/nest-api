@@ -34,10 +34,8 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Environment variables
+# Environment variables / configs
 .env
 .*.env
-!.example.env
-
-# Config
-config
+config/*
+!config/.example.env
