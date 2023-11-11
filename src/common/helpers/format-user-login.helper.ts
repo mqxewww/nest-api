@@ -4,17 +4,16 @@ export default async (
   verifier: (login: string) => Promise<boolean>
 ): Promise<string> => {
   let login: string;
+  let i = 0;
 
-  for (let i = 0; ; i++) {
+  do {
     login =
       i === 0
         ? `${firstName}.${lastName}`.toLowerCase().replace(" ", "")
         : `${firstName}.${lastName}${i}`.toLowerCase().replace(" ", "");
 
-    const isValid = await verifier(login);
-
-    if (isValid) break;
-  }
+    i++;
+  } while (!(await verifier(login)));
 
   return login;
 };
