@@ -1,11 +1,12 @@
 import { Controller, Delete, Get, NotFoundException, Param, Patch, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
 import { UsersService } from "./users.service";
 
+@ApiBearerAuth()
 @ApiTags("users")
 @Controller("users")
 export class UsersController {

@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Public } from "../common/decorators/public.decorator";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { AuthService } from "./auth.service";
 import { LoginDTO } from "./dto/inbound/login.dto";
@@ -16,6 +17,7 @@ export class AuthController {
    * @param body - The registration data.
    * @returns The registered user.
    */
+  @ApiBearerAuth()
   @Post("register")
   public async register(@Body() body: RegisterDTO): Promise<UserDTO> {
     return await this.authService.register(body);
@@ -26,6 +28,7 @@ export class AuthController {
    * @param body - The login credentials.
    * @returns A boolean indicating whether the login was successful.
    */
+  @Public()
   @Post("login")
   public async login(@Body() body: LoginDTO): Promise<AuthTokensDTO> {
     return await this.authService.login(body);

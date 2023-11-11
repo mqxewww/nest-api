@@ -2,9 +2,12 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
+import { JwtModule } from "@nestjs/jwt";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import fs from "fs";
 import Joi from "joi";
 import { LoggerModule } from "nestjs-pino";
+import { AuthGuard } from "./auth/auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 
@@ -41,6 +44,12 @@ import { UsersModule } from "./users/users.module";
       }
     ]),
     MikroOrmModule.forRoot(),
+    JwtModule.register({
+      global: true,
+      publicKey: fs.readFileSync("./config/public_key.pem"),
+      privateKey: fs.readFileSync("./config/private_key.pem"),
+      signOptions: { algorithm: "RS256", expiresIn: process.env.TOKEN_EXPIRES_IN }
+    }),
     AuthModule,
     UsersModule
   ],
@@ -48,6 +57,10 @@ import { UsersModule } from "./users/users.module";
     {
       provide: APP_GUARD,
       useValue: ThrottlerGuard
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
     }
   ]
 })
