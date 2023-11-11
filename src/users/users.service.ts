@@ -44,6 +44,12 @@ export class UsersService {
     });
   }
 
+  public async me(uuid: string): Promise<UserDTO> {
+    const user = await this.em.findOneOrFail(User, { uuid });
+
+    return UserDTO.from(user);
+  }
+
   public async patchOne(uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
     const user = await this.em.findOneOrFail(User, { uuid });
 

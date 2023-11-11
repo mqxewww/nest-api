@@ -1,11 +1,13 @@
 import { Controller, Delete, Get, NotFoundException, Param, Patch, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
 import { UsersService } from "./users.service";
 
+@ApiBearerAuth()
 @ApiTags("users")
 @Controller("users")
 export class UsersController {
@@ -33,6 +35,16 @@ export class UsersController {
     if (!user) throw new NotFoundException("User not found");
 
     return UserDTO.from(user);
+  }
+
+  /**
+   * Retrieves the user information for the authenticated user.
+   * @param uuid The UUID from the JWT.
+   * @returns The user information.
+   */
+  @Get("me")
+  public async me(@GetUserUuid() uuid: string): Promise<UserDTO> {
+    return await this.usersService.me(uuid);
   }
 
   /**

@@ -7,6 +7,7 @@ declare global {
       DATABASE_USERNAME: string;
       DATABASE_PASSWORD: string;
       DATABASE_NAME: string;
+      TOKEN_EXPIRES_IN: string;
     }
   }
 }

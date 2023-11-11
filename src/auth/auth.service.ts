@@ -1,19 +1,25 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
 import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
+import { AuthPayload } from "../common/types/auth-payload";
+import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
+import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
+import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
 
 @Injectable()
 export class AuthService {
   public constructor(
     private readonly usersService: UsersService,
-    private readonly em: EntityManager
+    private readonly em: EntityManager,
+    private readonly jwtService: JwtService
   ) {}
 
-  public async register(body: RegisterDTO): Promise<User> {
+  public async register(body: RegisterDTO): Promise<UserDTO> {
     const user = new User({
       first_name: body.first_name,
       last_name: body.last_name,
@@ -29,7 +35,23 @@ export class AuthService {
 
     await this.em.persistAndFlush(user);
 
-    return user;
+    return UserDTO.from(user);
+  }
+
+  public async login(body: LoginDTO): Promise<AuthTokensDTO> {
+    const user = await this.validateUser(body.login, body.password);
+
+    if (!user) throw new UnauthorizedException("Invalid credentials");
+
+    const payload: AuthPayload = {
+      sub: user.id,
+      uuid: user.uuid,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      login: user.login
+    };
+
+    return AuthTokensDTO.from(this.jwtService.sign(payload));
   }
 
   /**
