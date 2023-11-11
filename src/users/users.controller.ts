@@ -39,7 +39,7 @@ export class UsersController {
 
   /**
    * Retrieves the user information for the authenticated user.
-   * @param uuid The UUID from the JWT token.
+   * @param uuid The UUID from the JWT.
    * @returns The user information.
    */
   @Get("me")
