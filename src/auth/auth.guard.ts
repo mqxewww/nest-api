@@ -29,7 +29,9 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      await this.jwtService.verifyAsync<AuthPayload>(token);
+      const payload = await this.jwtService.verifyAsync<AuthPayload>(token);
+
+      request["payload"] = payload;
     } catch (error) {
       throw new UnauthorizedException("Invalid Bearer token");
     }
