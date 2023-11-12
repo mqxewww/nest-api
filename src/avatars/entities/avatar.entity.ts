@@ -7,7 +7,7 @@ export class Avatar extends UuidAndDates {
   @OneToOne(() => User, (user) => user.avatar, { nullable: true, unique: true, owner: true })
   public user?: User;
 
-  public constructor(values: Partial<User>) {
+  public constructor(values: Partial<Avatar>) {
     super();
     Object.assign(this, values);
   }

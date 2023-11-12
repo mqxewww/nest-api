@@ -39,3 +39,7 @@ lerna-debug.log*
 .*.env
 config/*
 !config/.example.env
+
+# Static images
+uploads/avatars/*
+!uploads/avatars/.gitkeep
