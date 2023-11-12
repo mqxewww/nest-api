@@ -24,5 +24,6 @@ npm run mikro-orm-schema-update
 - [x] Clean headers with helmet, rate limiting with @nestjs/throttler
 - [x] Logging with nestjs-pino and pino-pretty
 - [x] Authentication with @nestjs/jwt using RSA keys, guard and public decorator
+- [x] Image streaming and upload for avatars
 
 ~ mqxewww, 2023
