@@ -9,6 +9,7 @@ import Joi from "joi";
 import { LoggerModule } from "nestjs-pino";
 import { AuthGuard } from "./auth/auth.guard";
 import { AuthModule } from "./auth/auth.module";
+import { AvatarsModule } from "./avatars/avatars.module";
 import { UsersModule } from "./users/users.module";
 
 @Module({
@@ -51,6 +52,7 @@ import { UsersModule } from "./users/users.module";
       signOptions: { algorithm: "RS256", expiresIn: process.env.TOKEN_EXPIRES_IN }
     }),
     AuthModule,
+    AvatarsModule,
     UsersModule
   ],
   providers: [
