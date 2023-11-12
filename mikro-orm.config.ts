@@ -1,5 +1,9 @@
 import { defineConfig } from "@mikro-orm/core";
 import { NotFoundException } from "@nestjs/common";
+import { config } from "dotenv";
+
+// Required when running commands from MikroORM CLI.
+config({ path: "./config/.env" });
 
 export default defineConfig({
   type: "mysql",
