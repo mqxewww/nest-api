@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "NestJS API where I try everything that comes to mind.",
   "engines": {
-    "node": "=18.18.2"
+    "node": "=20.9.0"
   },
   "scripts": {
     "start:dev": "nest start --watch",
