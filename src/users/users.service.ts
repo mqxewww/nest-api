@@ -27,7 +27,8 @@ export class UsersService {
       this.em.find(User, queryFilters, {
         limit: query.limit || 5,
         offset: query.offset,
-        orderBy: { created_at: "DESC" }
+        orderBy: { created_at: "DESC" },
+        populate: ["avatar"]
       }),
       this.em.count(User, queryFilters)
     ]);
@@ -39,19 +40,23 @@ export class UsersService {
   }
 
   public async findOne(search: string): Promise<User | null> {
-    return await this.em.findOne(User, {
-      $or: [{ uuid: search }, { login: search }]
-    });
+    return await this.em.findOne(
+      User,
+      {
+        $or: [{ uuid: search }, { login: search }]
+      },
+      { populate: ["avatar"] }
+    );
   }
 
   public async me(uuid: string): Promise<UserDTO> {
-    const user = await this.em.findOneOrFail(User, { uuid });
+    const user = await this.em.findOneOrFail(User, { uuid }, { populate: ["avatar"] });
 
     return UserDTO.from(user);
   }
 
   public async patchOne(uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
-    const user = await this.em.findOneOrFail(User, { uuid });
+    const user = await this.em.findOneOrFail(User, { uuid }, { populate: ["avatar"] });
 
     Object.assign(user, query);
 
