@@ -18,12 +18,12 @@ npm run mikro-orm-schema-update
 
 ## Features :sparkles:
 
-- [x] Password hashing with bcrypt
-- [x] Seeders with @mikro-orm/seeder
-- [x] Documentation with @nestjs/swagger
-- [x] Clean headers with helmet, rate limiting with @nestjs/throttler
-- [x] Logging with nestjs-pino and pino-pretty
-- [x] Authentication with @nestjs/jwt using RSA keys, guard and public decorator
-- [x] Image streaming and upload for avatars
+- [x] Password hashing with `bcrypt`
+- [x] Seeders with `@mikro-orm/seeder`
+- [x] Documentation with `@nestjs/swagger`
+- [x] Clean headers with `helmet`, rate limiting with `@nestjs/throttler`
+- [x] Logging with `nestjs-pino` and `pino-pretty`
+- [x] Authentication with `@nestjs/jwt` using RSA keys, guard and public decorator
+- [x] Image streaming and upload for avatars with `nestjs` and `express`
 
 ~ mqxewww, 2023

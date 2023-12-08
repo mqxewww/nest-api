@@ -17,16 +17,12 @@ export class AuthGuard implements CanActivate {
       context.getClass()
     ]);
 
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) {
-      throw new UnauthorizedException("Missing Bearer token");
-    }
+    if (!token) throw new UnauthorizedException("Missing Bearer token");
 
     try {
       const payload = await this.jwtService.verifyAsync<AuthPayload>(token);
