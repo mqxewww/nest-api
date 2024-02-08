@@ -1,4 +1,4 @@
-import { defineConfig } from "@mikro-orm/core";
+import { defineConfig } from "@mikro-orm/mysql";
 import { NotFoundException } from "@nestjs/common";
 import { config } from "dotenv";
 
@@ -6,7 +6,6 @@ import { config } from "dotenv";
 config({ path: "./config/.env" });
 
 export default defineConfig({
-  type: "mysql",
   host: process.env.DATABASE_HOST,
   port: +process.env.DATABASE_PORT,
   user: process.env.DATABASE_USERNAME,
