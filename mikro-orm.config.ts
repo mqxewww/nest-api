@@ -1,4 +1,5 @@
 import { defineConfig } from "@mikro-orm/mysql";
+import { SeedManager } from "@mikro-orm/seeder";
 import { NotFoundException } from "@nestjs/common";
 import { config } from "dotenv";
 
@@ -13,6 +14,7 @@ export default defineConfig({
   dbName: process.env.DATABASE_NAME,
   entities: ["./dist/**/entities/*.entity.js"],
   entitiesTs: ["./src/**/entities/*.entity.ts"],
+  extensions: [SeedManager],
   allowGlobalContext: false,
   timezone: "+00:00",
   findOneOrFailHandler: (entityName: string) => {
