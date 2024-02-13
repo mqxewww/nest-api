@@ -8,7 +8,7 @@
   "scripts": {
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/src/main",
+    "start:prod": "node src/main",
     "build": "nest build",
     "mikro-orm-schema-update": "npx --yes mikro-orm schema:update --run",
     "mikro-orm-init-database": "npx --yes mikro-orm schema:fresh --run --seed InitDatabaseSeeder",
