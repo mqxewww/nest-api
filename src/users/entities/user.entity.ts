@@ -1,4 +1,5 @@
 import { Entity, OneToOne, Property } from "@mikro-orm/core";
+import { RefreshToken } from "../../auth/entities/refresh_token.entity";
 import { Avatar } from "../../avatars/entities/avatar.entity";
 import { UuidAndDates } from "../../common/entities/uuid-and-dates.entity";
 
@@ -18,6 +19,9 @@ export class User extends UuidAndDates {
 
   @OneToOne(() => Avatar, (avatar) => avatar.user, { nullable: true })
   public avatar?: Avatar;
+
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, { nullable: true })
+  public refresh_token?: RefreshToken;
 
   public constructor(values: Partial<User>) {
     super();

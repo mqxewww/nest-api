@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException
+} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { JsonWebTokenError, JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { Request } from "express";
@@ -9,8 +15,10 @@ import { AuthPayload } from "../common/types/auth-payload";
 @Injectable()
 export class AuthGuard implements CanActivate {
   public constructor(
-    private readonly jwtService: JwtService,
-    private readonly reflector: Reflector
+    private readonly reflector: Reflector,
+
+    @Inject("AccessJwtService")
+    private readonly accessJwtService: JwtService
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,7 +36,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException("Missing (bearer) access token. Get one via auth/login.");
 
     try {
-      const payload = await this.jwtService.verifyAsync<AuthPayload>(token);
+      const payload = await this.accessJwtService.verifyAsync<AuthPayload>(token);
 
       request["payload"] = payload;
     } catch (error: unknown) {
@@ -47,7 +55,7 @@ export class AuthGuard implements CanActivate {
           }
 
           // Unverified token, payload still needed in some cases
-          request["payload"] = this.jwtService.decode(token);
+          request["payload"] = this.accessJwtService.decode(token);
 
           return true;
         case error instanceof JsonWebTokenError:

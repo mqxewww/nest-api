@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { Public } from "../common/decorators/public.decorator";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { AuthService } from "./auth.service";
@@ -17,7 +17,7 @@ export class AuthController {
    * @param body - The registration data.
    * @returns The registered user.
    */
-  @ApiBearerAuth()
+  @Public()
   @Post("register")
   public async register(@Body() body: RegisterDTO): Promise<UserDTO> {
     return await this.authService.register(body);

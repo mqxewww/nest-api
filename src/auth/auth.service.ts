@@ -1,5 +1,5 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
 import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
@@ -16,7 +16,12 @@ export class AuthService {
   public constructor(
     private readonly usersService: UsersService,
     private readonly em: EntityManager,
-    private readonly jwtService: JwtService
+
+    @Inject("AccessJwtService")
+    private readonly accessJwtService: JwtService,
+
+    @Inject("RefreshJwtService")
+    private readonly refreshJwtService: JwtService
   ) {}
 
   public async register(body: RegisterDTO): Promise<UserDTO> {
@@ -51,7 +56,7 @@ export class AuthService {
       login: user.login
     };
 
-    return AuthTokensDTO.from(this.jwtService.sign(payload));
+    return AuthTokensDTO.from(this.accessJwtService.sign(payload), this.refreshJwtService.sign({}));
   }
 
   /**
