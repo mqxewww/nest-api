@@ -1,7 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { JwtService } from "@nestjs/jwt";
+import { JsonWebTokenError, JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { Request } from "express";
+import { ALLOW_EXPIRED_ACCESS_TOKEN_KEY } from "../common/decorators/allow-expired-access-token.decorator";
+import { IS_PUBLIC_KEY } from "../common/decorators/public.decorator";
 import { AuthPayload } from "../common/types/auth-payload";
 
 @Injectable()
@@ -12,7 +14,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>("isPublic", [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass()
     ]);
@@ -22,14 +24,40 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException("Missing Bearer token");
+    if (!token)
+      throw new UnauthorizedException("Missing (bearer) access token. Get one via auth/login.");
 
     try {
       const payload = await this.jwtService.verifyAsync<AuthPayload>(token);
 
       request["payload"] = payload;
-    } catch (error) {
-      throw new UnauthorizedException("Invalid Bearer token");
+    } catch (error: unknown) {
+      const allowExpiredAccessToken = this.reflector.getAllAndOverride<boolean>(
+        ALLOW_EXPIRED_ACCESS_TOKEN_KEY,
+        [context.getHandler(), context.getClass()]
+      );
+
+      switch (true) {
+        case error instanceof TokenExpiredError:
+          if (!allowExpiredAccessToken) {
+            throw new UnauthorizedException(
+              "Your access token has expired. Refresh your access token via auth/refresh.",
+              `${error.name}: ${error.message}`
+            );
+          }
+
+          // Unverified token, payload still needed in some cases
+          request["payload"] = this.jwtService.decode(token);
+
+          return true;
+        case error instanceof JsonWebTokenError:
+          throw new UnauthorizedException(
+            "Your access token is invalid. Get a new one via auth/login.",
+            `${error.name}: ${error.message}`
+          );
+        default:
+          throw error;
+      }
     }
 
     return true;
