@@ -6,7 +6,6 @@ import fs from "fs";
 @Module({
   imports: [
     JwtModule.registerAsync({
-      global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -32,7 +31,6 @@ class AccessJwtModule {}
 @Module({
   imports: [
     JwtModule.registerAsync({
-      global: true,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

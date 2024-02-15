@@ -1,15 +1,15 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
 import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
-import { AuthPayload } from "../common/types/auth-payload";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
 import { UsersService } from "../users/users.service";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
+import { RefreshToken } from "./entities/refresh_token.entity";
 
 @Injectable()
 export class AuthService {
@@ -48,15 +48,53 @@ export class AuthService {
 
     if (!user) throw new UnauthorizedException("Invalid credentials");
 
-    const payload: AuthPayload = {
-      sub: user.id,
-      uuid: user.uuid,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      login: user.login
-    };
+    if (user.refresh_token) await this.em.removeAndFlush(user.refresh_token);
 
-    return AuthTokensDTO.from(this.accessJwtService.sign(payload), this.refreshJwtService.sign({}));
+    const refreshToken = new RefreshToken({ user, token: this.refreshJwtService.sign({}) });
+
+    await this.em.persistAndFlush(refreshToken);
+
+    return AuthTokensDTO.from(
+      this.accessJwtService.sign(user.getDefaultPayload()),
+      refreshToken.token
+    );
+  }
+
+  public async refresh(refresh_token: string, user_uuid: string): Promise<AuthTokensDTO> {
+    const user = await this.em.findOneOrFail(
+      User,
+      { uuid: user_uuid },
+      { populate: ["refresh_token"] }
+    );
+
+    if (user.refresh_token?.token !== refresh_token)
+      throw new BadRequestException(
+        "The token supplied does not correspond to the one associated with your account."
+      );
+
+    try {
+      await this.refreshJwtService.verifyAsync(user.refresh_token.token);
+    } catch (error: unknown) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException(
+          "Your refresh token has expired. Get a new one via auth/login.",
+          `${error.name}: ${error.message}`
+        );
+      }
+
+      throw error;
+    }
+
+    await this.em.removeAndFlush(user.refresh_token);
+
+    const refreshToken = new RefreshToken({ user, token: this.refreshJwtService.sign({}) });
+
+    await this.em.persistAndFlush(refreshToken);
+
+    return AuthTokensDTO.from(
+      this.accessJwtService.sign(user.getDefaultPayload()),
+      refreshToken.token
+    );
   }
 
   /**
