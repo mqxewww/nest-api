@@ -1,6 +1,8 @@
 import { Entity, OneToOne, Property } from "@mikro-orm/core";
+import { RefreshToken } from "../../auth/entities/refresh_token.entity";
 import { Avatar } from "../../avatars/entities/avatar.entity";
 import { UuidAndDates } from "../../common/entities/uuid-and-dates.entity";
+import { AuthPayload } from "../../common/types/auth-payload";
 
 @Entity({ tableName: "users" })
 export class User extends UuidAndDates {
@@ -19,8 +21,21 @@ export class User extends UuidAndDates {
   @OneToOne(() => Avatar, (avatar) => avatar.user, { nullable: true })
   public avatar?: Avatar;
 
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, { nullable: true })
+  public refresh_token?: RefreshToken;
+
   public constructor(values: Partial<User>) {
     super();
     Object.assign(this, values);
+  }
+
+  public getDefaultPayload(): AuthPayload {
+    return {
+      sub: this.id,
+      uuid: this.uuid,
+      first_name: this.first_name,
+      last_name: this.last_name,
+      login: this.login
+    };
   }
 }
