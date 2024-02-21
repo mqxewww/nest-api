@@ -30,9 +30,9 @@ export class AuthGuard implements CanActivate {
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+    const [type, token] = request.headers.authorization?.split(" ") ?? [];
 
-    if (!token)
+    if (type !== "Bearer" || !token)
       throw new UnauthorizedException("Missing (bearer) access token. Get one via auth/login.");
 
     try {
@@ -69,11 +69,5 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | null {
-    const [type, token] = request.headers.authorization?.split(" ") ?? [];
-
-    return type === "Bearer" ? token : null;
   }
 }

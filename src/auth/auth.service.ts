@@ -2,10 +2,9 @@ import { EntityManager } from "@mikro-orm/mysql";
 import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
-import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
+import { UserHelper } from "../common/helpers/user.helper";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
-import { UsersService } from "../users/users.service";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
@@ -14,7 +13,6 @@ import { RefreshToken } from "./entities/refresh_token.entity";
 @Injectable()
 export class AuthService {
   public constructor(
-    private readonly usersService: UsersService,
     private readonly em: EntityManager,
 
     @Inject("AccessJwtService")
@@ -31,10 +29,14 @@ export class AuthService {
       password: hashSync(body.password, 10)
     });
 
-    const login = await formatUserLoginHelper(user.first_name, user.last_name, async (login) => {
-      // Login is valid if it's not already taken
-      return !(await this.em.findOne(User, { login }));
-    });
+    const login = await UserHelper.formatUserLogin(
+      user.first_name,
+      user.last_name,
+      async (login) => {
+        // Login is valid if it's not already taken
+        return !(await this.em.findOne(User, { login }));
+      }
+    );
 
     user.login = login;
 
@@ -44,9 +46,10 @@ export class AuthService {
   }
 
   public async login(body: LoginDTO): Promise<AuthTokensDTO> {
-    const user = await this.validateUser(body.login, body.password);
+    const user = await this.em.findOne(User, { login: body.login });
 
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user || !bcrypt.compareSync(body.password, user.password))
+      throw new UnauthorizedException("Wrong credentials. Verify and try again.");
 
     if (user.refresh_token) await this.em.removeAndFlush(user.refresh_token);
 
@@ -95,19 +98,5 @@ export class AuthService {
       this.accessJwtService.sign(user.getDefaultPayload()),
       refreshToken.token
     );
-  }
-
-  /**
-   * Validates a user's login credentials.
-   * @param login The user's login.
-   * @param password The user's password.
-   * @returns The user if the credentials are valid, null otherwise.
-   */
-  public async validateUser(login: string, password: string): Promise<User | null> {
-    const user = await this.usersService.findOne(login);
-
-    const areParametersValid = user && bcrypt.compareSync(password, user.password);
-
-    return areParametersValid ? user : null;
   }
 }

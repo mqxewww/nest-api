@@ -3,7 +3,7 @@ import { EntityManager } from "@mikro-orm/mysql";
 import { Injectable } from "@nestjs/common";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
-import formatUserLoginHelper from "../common/helpers/format-user-login.helper";
+import { UserHelper } from "../common/helpers/user.helper";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
 import { User } from "./entities/user.entity";
@@ -60,12 +60,16 @@ export class UsersService {
 
     Object.assign(user, query);
 
-    const login = await formatUserLoginHelper(user.first_name, user.last_name, async (login) => {
-      const userWithNewLogin = await this.em.findOne(User, { login });
+    const login = await UserHelper.formatUserLogin(
+      user.first_name,
+      user.last_name,
+      async (login) => {
+        const userWithNewLogin = await this.em.findOne(User, { login });
 
-      // Login is valid if it's not already taken or if it's taken by the same user
-      return !userWithNewLogin || (userWithNewLogin && userWithNewLogin.login === user.login);
-    });
+        // Login is valid if it's not already taken or if it's taken by the same user
+        return !userWithNewLogin || (userWithNewLogin && userWithNewLogin.login === user.login);
+      }
+    );
 
     user.login = login;
 

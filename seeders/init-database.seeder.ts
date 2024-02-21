@@ -2,7 +2,7 @@ import { fakerFR as faker } from "@faker-js/faker";
 import { EntityManager } from "@mikro-orm/mysql";
 import { Seeder } from "@mikro-orm/seeder";
 import { hashSync } from "bcrypt";
-import formatUserLoginHelper from "../src/common/helpers/format-user-login.helper";
+import { UserHelper } from "../src/common/helpers/user.helper";
 import { User } from "../src/users/entities/user.entity";
 
 export class InitDatabaseSeeder extends Seeder {
@@ -26,10 +26,14 @@ export class InitDatabaseSeeder extends Seeder {
         password: hashSync("nest-api", 10)
       });
 
-      const login = await formatUserLoginHelper(user.first_name, user.last_name, async (login) => {
-        // Login is valid if it's not already taken
-        return !(await this.em.findOne(User, { login }));
-      });
+      const login = await UserHelper.formatUserLogin(
+        user.first_name,
+        user.last_name,
+        async (login) => {
+          // Login is valid if it's not already taken
+          return !(await this.em.findOne(User, { login }));
+        }
+      );
 
       user.login = login;
 
