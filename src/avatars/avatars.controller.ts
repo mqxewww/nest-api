@@ -24,11 +24,7 @@ import { UploadAvatarDTO } from "./dto/inbound/upload-avatar.dto";
 export class AvatarsController {
   public constructor(private readonly avatarsService: AvatarsService) {}
 
-  /**
-   * Retrieves the avatar for the given UUID.
-   * @param uuid The UUID of the avatar to retrieve.
-   * @returns The avatar.
-   */
+  /** Get an avatar by UUID. */
   @Public()
   @Get("get-avatar/:uuid")
   public async getAvatar(
@@ -44,12 +40,7 @@ export class AvatarsController {
     return new StreamableFile(avatarAsReadStream);
   }
 
-  /**
-   * Uploads an avatar for the authenticated user.
-   * @param uuid The UUID from the JWT.
-   * @param avatar The uploaded avatar file.
-   * @returns A boolean indicating whether the avatar was uploaded successfully.
-   */
+  /** Uploads a new avatar. Will be linked to the authenticated user. */
   @ApiBearerAuth()
   @ApiConsumes("multipart/form-data")
   @ApiBody({ type: UploadAvatarDTO })
