@@ -5,6 +5,7 @@ import bcrypt, { hashSync } from "bcrypt";
 import { UserHelper } from "../common/helpers/user.helper";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
+import { ChangePasswordDTO } from "./dto/inbound/change_password.dto";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
@@ -98,5 +99,18 @@ export class AuthService {
       this.accessJwtService.sign(user.getDefaultPayload()),
       refreshToken.token
     );
+  }
+
+  public async changePassword(user_uuid: string, body: ChangePasswordDTO): Promise<boolean> {
+    const user = await this.em.findOneOrFail(User, { uuid: user_uuid });
+
+    if (!bcrypt.compareSync(body.old_password, user.password))
+      throw new BadRequestException("Your old password is wrong. Verify and try again.");
+
+    user.password = hashSync(body.new_password, 10);
+
+    await this.em.persistAndFlush(user);
+
+    return true;
   }
 }

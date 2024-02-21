@@ -1,13 +1,9 @@
 import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
 
-export class RegisterDTO {
+export class ChangePasswordDTO {
   @IsNotEmpty()
   @IsString()
-  public first_name: string;
-
-  @IsNotEmpty()
-  @IsString()
-  public last_name: string;
+  public old_password: string;
 
   @IsNotEmpty()
   @IsStrongPassword({
@@ -17,5 +13,5 @@ export class RegisterDTO {
     minNumbers: 1,
     minSymbols: 0
   })
-  public password: string;
+  public new_password: string;
 }
