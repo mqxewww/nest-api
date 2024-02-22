@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
 
 export class RegisterDTO {
   @IsNotEmpty()
@@ -18,4 +18,8 @@ export class RegisterDTO {
     minSymbols: 0
   })
   public password: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  public email: string;
 }
