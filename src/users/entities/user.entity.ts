@@ -12,6 +12,9 @@ export class User extends UuidAndDates {
   @Property()
   public last_name: string;
 
+  @Property()
+  public email: string;
+
   @Property({ unique: true })
   public login: string;
 
@@ -34,8 +37,7 @@ export class User extends UuidAndDates {
       sub: this.id,
       uuid: this.uuid,
       first_name: this.first_name,
-      last_name: this.last_name,
-      login: this.login
+      last_name: this.last_name
     };
   }
 }
