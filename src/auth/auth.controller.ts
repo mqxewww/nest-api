@@ -5,10 +5,11 @@ import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { AuthService } from "./auth.service";
-import { ChangePasswordDTO } from "./dto/inbound/change_password.dto";
+import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RefreshDTO } from "./dto/inbound/refresh.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
+import { SendResetPasswordRequestDTO } from "./dto/inbound/send-reset-password-request.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
 
 @ApiTags("auth")
@@ -49,5 +50,14 @@ export class AuthController {
     @GetUserUuid() uuid: string
   ): Promise<boolean> {
     return await this.authService.changePassword(uuid, body);
+  }
+
+  /** Create a password change request, and send a secret token by email. */
+  @Public()
+  @Post("send-reset-password-request")
+  public async sendResetPasswordRequest(
+    @Body() body: SendResetPasswordRequestDTO
+  ): Promise<boolean> {
+    return await this.authService.sendResetPasswordRequest(body.email);
   }
 }

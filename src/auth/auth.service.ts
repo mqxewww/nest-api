@@ -1,11 +1,20 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException
+} from "@nestjs/common";
 import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
+import { TokenHelper } from "../common/helpers/token.helper";
 import { UserHelper } from "../common/helpers/user.helper";
+import { NodeMailerService } from "../common/providers/node-mailer.provider";
+import { NodeMailerTemplate } from "../common/templates/node-mailer.template";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
-import { ChangePasswordDTO } from "./dto/inbound/change_password.dto";
+import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
@@ -13,8 +22,11 @@ import { RefreshToken } from "./entities/refresh_token.entity";
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(NodeMailerService.name);
+
   public constructor(
     private readonly em: EntityManager,
+    private readonly nodeMailerService: NodeMailerService,
 
     @Inject("AccessJwtService")
     private readonly accessJwtService: JwtService,
@@ -110,6 +122,20 @@ export class AuthService {
     user.password = hashSync(body.new_password, 10);
 
     await this.em.persistAndFlush(user);
+
+    return true;
+  }
+
+  public async sendResetPasswordRequest(to: string): Promise<boolean> {
+    const params: Record<string, unknown> = {
+      PRIVATE_TOKEN: TokenHelper.generateForEmails()
+    };
+
+    await this.nodeMailerService.sendMail(to, NodeMailerTemplate.RESET_PASSWORD_REQUEST, params);
+
+    this.logger.log(
+      `A reset password request was sent to ${to} with the following parameters: ${JSON.stringify(params)}`
+    );
 
     return true;
   }

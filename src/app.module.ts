@@ -29,6 +29,8 @@ import { UsersModule } from "./users/users.module";
         REFRESH_TOKEN_EXPIRES_IN: Joi.string()
           .pattern(new RegExp(/^(\d+)([smhdy])$/))
           .required(),
+        NODEMAILER_USER: Joi.string().required(),
+        NODEMAILER_PASS: Joi.string().required(),
         PINO_PRETTY: Joi.boolean().required()
       })
     }),
