@@ -3,6 +3,7 @@ import { RefreshToken } from "../../auth/entities/refresh_token.entity";
 import { Avatar } from "../../avatars/entities/avatar.entity";
 import { UuidAndDates } from "../../common/entities/uuid-and-dates.entity";
 import { AuthPayload } from "../../common/types/auth-payload";
+import { ResetPasswordRequest } from "../../reset-password-requests/entities/reset-password-request.entity";
 
 @Entity({ tableName: "users" })
 export class User extends UuidAndDates {
@@ -12,7 +13,7 @@ export class User extends UuidAndDates {
   @Property()
   public last_name: string;
 
-  @Property()
+  @Property({ unique: true })
   public email: string;
 
   @Property({ unique: true })
@@ -26,6 +27,11 @@ export class User extends UuidAndDates {
 
   @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, { nullable: true })
   public refresh_token?: RefreshToken;
+
+  @OneToOne(() => ResetPasswordRequest, (resetPasswordRequest) => resetPasswordRequest.user, {
+    nullable: true
+  })
+  public reset_password_request?: ResetPasswordRequest;
 
   public constructor(values: Partial<User>) {
     super();
