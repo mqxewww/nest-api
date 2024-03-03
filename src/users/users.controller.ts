@@ -1,8 +1,19 @@
-import { Controller, Delete, Get, NotFoundException, Param, Patch, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Put,
+  Query
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
+import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
 import { UsersService } from "./users.service";
@@ -42,6 +53,16 @@ export class UsersController {
     @Query() query: PatchUserQueryDTO
   ): Promise<UserDTO> {
     return await this.usersService.patchOne(uuid, query);
+  }
+
+  /** Change authenticated user's password. The user must be logged in to change his password this way. */
+  @ApiBearerAuth()
+  @Put("change-password")
+  public async changePassword(
+    @Body() body: ChangePasswordDTO,
+    @GetUserUuid() uuid: string
+  ): Promise<boolean> {
+    return await this.usersService.changePassword(uuid, body);
   }
 
   /** Deletes a user by UUID. */

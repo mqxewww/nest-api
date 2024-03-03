@@ -1,11 +1,10 @@
-import { Body, Controller, Post, Put } from "@nestjs/common";
+import { Body, Controller, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AllowExpiredAccessToken } from "../common/decorators/allow-expired-access-token.decorator";
 import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { AuthService } from "./auth.service";
-import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RefreshDTO } from "./dto/inbound/refresh.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
@@ -16,7 +15,7 @@ import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
 export class AuthController {
   public constructor(private readonly authService: AuthService) {}
 
-  /** Registers a new user. */
+  /** Registers a new user. Login is automatically generated from user's firstName and lastName. */
   @Public()
   @Post("register")
   public async register(@Body() body: RegisterDTO): Promise<UserDTO> {
@@ -30,7 +29,7 @@ export class AuthController {
     return await this.authService.login(body);
   }
 
-  /** Get a new access token. */
+  /** Get a new access token by providing the user's refresh token. */
   @ApiBearerAuth()
   @AllowExpiredAccessToken()
   @Post("refresh")
@@ -39,15 +38,5 @@ export class AuthController {
     @GetUserUuid() uuid: string
   ): Promise<AuthTokensDTO> {
     return await this.authService.refresh(body.refresh_token, uuid);
-  }
-
-  /** Change authenticated user's password. The user must be logged in to change his password this way. */
-  @ApiBearerAuth()
-  @Put("change-password")
-  public async changePassword(
-    @Body() body: ChangePasswordDTO,
-    @GetUserUuid() uuid: string
-  ): Promise<boolean> {
-    return await this.authService.changePassword(uuid, body);
   }
 }
