@@ -1,11 +1,13 @@
 import { fakerFR as faker } from "@faker-js/faker";
 import { EntityManager } from "@mikro-orm/mysql";
 import { Seeder } from "@mikro-orm/seeder";
+import { Logger } from "@nestjs/common";
 import { hashSync } from "bcrypt";
 import { UserHelper } from "../src/common/helpers/user.helper";
 import { User } from "../src/users/entities/user.entity";
 
 export class InitDatabaseSeeder extends Seeder {
+  private readonly logger = new Logger(InitDatabaseSeeder.name);
   private em: EntityManager;
 
   public async run(em: EntityManager): Promise<void> {
@@ -15,14 +17,18 @@ export class InitDatabaseSeeder extends Seeder {
   }
 
   private async handleUsersCreation(count: number): Promise<User[]> {
-    console.log(`Creating ${count} users...`);
+    this.logger.log(`Creating ${count} users`);
 
     const users: User[] = [];
 
     for (let i = 0; i < count; i++) {
+      const first_name = faker.person.firstName();
+      const last_name = faker.person.lastName();
+
       const user = new User({
-        first_name: faker.person.firstName(),
-        last_name: faker.person.lastName(),
+        first_name,
+        last_name,
+        email: faker.internet.email({ firstName: first_name, lastName: last_name }),
         password: hashSync("nest-api", 10)
       });
 

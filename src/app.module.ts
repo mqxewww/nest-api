@@ -9,6 +9,7 @@ import { AuthGuard } from "./auth/auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { AvatarsModule } from "./avatars/avatars.module";
 import { CustomJwtModule } from "./common/modules/custom-jwt.module";
+import { ResetPasswordRequestsModule } from "./reset-password-requests/reset-password-requests.module";
 import { UsersModule } from "./users/users.module";
 
 @Module({
@@ -29,6 +30,8 @@ import { UsersModule } from "./users/users.module";
         REFRESH_TOKEN_EXPIRES_IN: Joi.string()
           .pattern(new RegExp(/^(\d+)([smhdy])$/))
           .required(),
+        NODEMAILER_USER: Joi.string().required(),
+        NODEMAILER_PASS: Joi.string().required(),
         PINO_PRETTY: Joi.boolean().required()
       })
     }),
@@ -60,6 +63,7 @@ import { UsersModule } from "./users/users.module";
     CustomJwtModule,
     AuthModule,
     AvatarsModule,
+    ResetPasswordRequestsModule,
     UsersModule
   ],
   providers: [

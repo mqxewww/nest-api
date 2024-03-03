@@ -3,5 +3,4 @@ export type AuthPayload = {
   uuid: string;
   first_name: string;
   last_name: string;
-  login: string;
 };
