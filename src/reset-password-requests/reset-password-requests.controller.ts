@@ -26,6 +26,7 @@ export class ResetPasswordRequestsController {
     return await this.resetPasswordRequestsService.verifyCode(body);
   }
 
+  /** Update the user's password after the request code has been validated. */
   @Public()
   @Put("update-user-password")
   public async updateUserPassword(@Body() body: UpdateUserPasswordDTO): Promise<boolean> {

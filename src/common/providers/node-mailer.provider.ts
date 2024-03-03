@@ -33,11 +33,26 @@ export class NodeMailerService {
       if (params.hasOwnProperty(key)) html = html.replace(`{{${key}}}`, `${params[key]}`);
 
     try {
-      return (await this.transporter.sendMail({
+      const response = (await this.transporter.sendMail({
         to,
         subject: NodeMailerSubject[template],
         html
       })) as NodeMailerResponse;
+
+      switch (true) {
+        case response.accepted.length === 1:
+          this.logger.log(
+            `An email was sent to ${response.accepted[0]} for ${template} with the following parameters: ${JSON.stringify(params)}`
+          );
+          break;
+        case response.accepted.length > 1:
+          this.logger.log(
+            `An email was sent to ${response.accepted.length} addresses for ${template} with the following parameters: ${JSON.stringify(params)}`
+          );
+          break;
+      }
+
+      return response;
     } catch (error: unknown) {
       this.logger.error(error);
       throw new InternalServerErrorException(

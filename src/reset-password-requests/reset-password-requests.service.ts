@@ -55,10 +55,6 @@ export class ResetPasswordRequestsService {
 
     await this.em.persistAndFlush(request);
 
-    this.logger.log(
-      `A reset password request was sent to ${to} with the following parameters: ${JSON.stringify(params)}`
-    );
-
     return true;
   }
 
