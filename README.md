@@ -25,5 +25,6 @@ npm run mikro-orm-schema-update
 - [x] Logging with `nestjs-pino` and `pino-pretty`
 - [x] Authentication with `@nestjs/jwt` using RSA keys, guard and public decorator
 - [x] Image streaming and upload for avatars with `nestjs` and `express`
+- [x] Send emails with `nodemailer` (only gmail service) as a custom nest provider
 
-~ mqxewww, 2023
+~ mqxewww, 2023 - 2024
