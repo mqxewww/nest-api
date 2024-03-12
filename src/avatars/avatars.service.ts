@@ -1,5 +1,5 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ReadStream, createReadStream, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { User } from "../users/entities/user.entity";
@@ -10,7 +10,9 @@ export class AvatarsService {
   public constructor(private readonly em: EntityManager) {}
 
   public async getAvatar(uuid: string): Promise<ReadStream> {
-    const avatar = await this.em.findOneOrFail(Avatar, { uuid });
+    const avatar = await this.em.findOne(Avatar, { uuid });
+
+    if (!avatar) throw new BadRequestException("No avatar registered with this UUID.");
 
     return createReadStream(join(process.cwd(), `./uploads/avatars/${avatar.uuid}.jpg`));
   }
@@ -23,11 +25,11 @@ export class AvatarsService {
       await this.em.removeAndFlush(user.avatar);
     }
 
-    const avatar = new Avatar({ user });
+    user.avatar = this.em.create(Avatar, { user });
 
-    await this.em.persistAndFlush(avatar);
+    await this.em.persistAndFlush(user.avatar);
 
-    writeFileSync(`./uploads/avatars/${avatar.uuid}.jpg`, file.buffer);
+    writeFileSync(`./uploads/avatars/${user.avatar.uuid}.jpg`, file.buffer);
 
     return true;
   }

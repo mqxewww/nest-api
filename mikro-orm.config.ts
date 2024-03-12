@@ -1,6 +1,6 @@
 import { defineConfig } from "@mikro-orm/mysql";
 import { SeedManager } from "@mikro-orm/seeder";
-import { NotFoundException } from "@nestjs/common";
+import { InternalServerErrorException } from "@nestjs/common";
 import { config } from "dotenv";
 
 // Required when running commands from MikroORM CLI
@@ -18,6 +18,7 @@ export default defineConfig({
   allowGlobalContext: false,
   timezone: "+00:00",
   findOneOrFailHandler: (entityName: string) => {
-    throw new NotFoundException(`${entityName} not found`);
-  }
+    throw new InternalServerErrorException(`${entityName} not found`);
+  },
+  persistOnCreate: false
 });

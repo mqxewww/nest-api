@@ -1,5 +1,5 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { hashSync } from "bcrypt";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
@@ -12,7 +12,6 @@ import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
 
 @Injectable()
 export class ResetPasswordRequestsService {
-  private readonly logger = new Logger(NodeMailerService.name);
   private readonly REQUEST_EXPIRATION_TIME = 10; // In minutes
 
   public constructor(
@@ -41,7 +40,7 @@ export class ResetPasswordRequestsService {
       await this.em.removeAndFlush(existingRequest);
     }
 
-    const request = new ResetPasswordRequest({
+    const request = this.em.create(ResetPasswordRequest, {
       user,
       verification_code: TokenHelper.generate(6, TokenCharset.NUMBERS_ONLY)
     });
