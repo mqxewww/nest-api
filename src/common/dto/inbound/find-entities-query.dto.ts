@@ -2,17 +2,17 @@ import { Transform } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FindEntitiesQueryDTO {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   public search?: string;
 
-  @IsOptional()
-  @IsNumber()
   @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @IsOptional()
   public limit?: number;
 
-  @IsOptional()
-  @IsNumber()
   @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  @IsOptional()
   public offset?: number;
 }

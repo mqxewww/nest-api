@@ -1,11 +1,11 @@
 import { IsOptional, IsString } from "class-validator";
 
 export class PatchUserQueryDTO {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   public first_name?: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   public last_name?: string;
 }
