@@ -28,10 +28,10 @@ export class AvatarsController {
   @Public()
   @Get("get-avatar/:uuid")
   public async getAvatar(
-    @Param("uuid") uuid: string,
+    @Param("uuid") avatar_uuid: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<StreamableFile> {
-    const avatarAsReadStream = await this.avatarsService.getAvatar(uuid);
+    const avatarAsReadStream = await this.avatarsService.getAvatar(avatar_uuid);
 
     res.set({
       "Content-Type": "image/jpeg"

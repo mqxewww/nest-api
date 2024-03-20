@@ -1,5 +1,3 @@
-import * as crypto from "crypto";
-
 export enum TokenCharset {
   CHARACTERS_ONLY = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
   NUMBERS_ONLY = "0123456789",
@@ -8,14 +6,11 @@ export enum TokenCharset {
 
 export class TokenHelper {
   public static generate(length: number, charset: TokenCharset): string {
-    const randomBytesArray = crypto.randomBytes(length);
-    let key = "";
+    let token = "";
 
-    for (let i = 0; i < randomBytesArray.length; i++) {
-      const byte = randomBytesArray.readUInt8(i);
-      key += charset[byte % charset.length];
-    }
+    for (let i = 0; i < length; i++)
+      token += charset.charAt(Math.floor(Math.random() * charset.length));
 
-    return key;
+    return token;
   }
 }

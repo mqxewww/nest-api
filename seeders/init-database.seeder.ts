@@ -25,14 +25,14 @@ export class InitDatabaseSeeder extends Seeder {
       const first_name = faker.person.firstName();
       const last_name = faker.person.lastName();
 
-      const user = new User({
-        first_name,
-        last_name,
-        email: faker.internet.email({ firstName: first_name, lastName: last_name }),
-        password: hashSync("nest-api", 10)
-      });
+      const user = new User();
 
-      const login = await UserHelper.formatUserLogin(
+      user.first_name = first_name;
+      user.last_name = last_name;
+      user.email = faker.internet.email({ firstName: first_name, lastName: last_name });
+      user.password = hashSync("nest-api", 10);
+
+      user.login = await UserHelper.formatUserLogin(
         user.first_name,
         user.last_name,
         async (login) => {
@@ -40,8 +40,6 @@ export class InitDatabaseSeeder extends Seeder {
           return !(await this.em.findOne(User, { login }));
         }
       );
-
-      user.login = login;
 
       users.push(user);
     }

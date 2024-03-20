@@ -9,7 +9,6 @@ export class RegisterDTO {
   @IsString()
   public last_name: string;
 
-  @IsNotEmpty()
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,
@@ -17,9 +16,9 @@ export class RegisterDTO {
     minNumbers: 1,
     minSymbols: 0
   })
+  @IsString()
   public password: string;
 
-  @IsNotEmpty()
   @IsEmail()
   public email: string;
 }

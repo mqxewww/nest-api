@@ -5,7 +5,6 @@ export class UpdateUserPasswordDTO {
   @IsString()
   public update_key: string;
 
-  @IsNotEmpty()
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,
@@ -13,5 +12,6 @@ export class UpdateUserPasswordDTO {
     minNumbers: 1,
     minSymbols: 0
   })
+  @IsString()
   public password: string;
 }

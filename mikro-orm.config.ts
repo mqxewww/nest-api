@@ -1,7 +1,10 @@
 import { defineConfig } from "@mikro-orm/mysql";
 import { SeedManager } from "@mikro-orm/seeder";
-import { NotFoundException } from "@nestjs/common";
+import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { config } from "dotenv";
+import { ApiError } from "./src/common/constants/api-errors.constant";
+
+const logger = new Logger("MikroORMConfig");
 
 // Required when running commands from MikroORM CLI
 config({ path: "./config/.env" });
@@ -17,7 +20,10 @@ export default defineConfig({
   extensions: [SeedManager],
   allowGlobalContext: false,
   timezone: "+00:00",
-  findOneOrFailHandler: (entityName: string) => {
-    throw new NotFoundException(`${entityName} not found`);
-  }
+  findOneOrFailHandler: (entityName, where) => {
+    logger.error({ entityName, where });
+
+    throw new InternalServerErrorException(ApiError.ENTITY_NOT_FOUND);
+  },
+  persistOnCreate: false
 });

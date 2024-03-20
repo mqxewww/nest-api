@@ -1,7 +1,14 @@
-import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService, TokenExpiredError } from "@nestjs/jwt";
+import { EntityManager, UniqueConstraintViolationException } from "@mikro-orm/mysql";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
+import { ApiError } from "../common/constants/api-errors.constant";
 import { UserHelper } from "../common/helpers/user.helper";
 import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
@@ -12,6 +19,8 @@ import { RefreshToken } from "./entities/refresh_token.entity";
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   public constructor(
     private readonly em: EntityManager,
 
@@ -23,14 +32,14 @@ export class AuthService {
   ) {}
 
   public async register(body: RegisterDTO): Promise<UserDTO> {
-    const user = new User({
+    const user = this.em.create(User, {
       first_name: body.first_name,
       last_name: body.last_name,
-      password: hashSync(body.password, 10),
-      email: body.email
+      email: body.email,
+      password: hashSync(body.password, 10)
     });
 
-    const login = await UserHelper.formatUserLogin(
+    user.login = await UserHelper.formatUserLogin(
       user.first_name,
       user.last_name,
       async (login) => {
@@ -39,9 +48,19 @@ export class AuthService {
       }
     );
 
-    user.login = login;
+    try {
+      await this.em.persistAndFlush(user);
+    } catch (error: unknown) {
+      this.logger.debug(error);
 
-    await this.em.persistAndFlush(user);
+      if (
+        error instanceof UniqueConstraintViolationException &&
+        error.sqlMessage?.includes("email")
+      )
+        throw new BadRequestException(ApiError.EMAIL_ALREADY_IN_USE);
+
+      throw error;
+    }
 
     return UserDTO.from(user);
   }
@@ -50,17 +69,20 @@ export class AuthService {
     const user = await this.em.findOne(User, { login: body.login });
 
     if (!user || !bcrypt.compareSync(body.password, user.password))
-      throw new UnauthorizedException("Wrong credentials. Verify and try again.");
+      throw new UnauthorizedException(ApiError.INVALID_CREDENTIALS);
 
-    if (user.refresh_token) await this.em.removeAndFlush(user.refresh_token);
+    user.refresh_token
+      ? (user.refresh_token.token = this.refreshJwtService.sign({}))
+      : (user.refresh_token = this.em.create(RefreshToken, {
+          token: this.refreshJwtService.sign({}),
+          user
+        }));
 
-    const refreshToken = new RefreshToken({ user, token: this.refreshJwtService.sign({}) });
-
-    await this.em.persistAndFlush(refreshToken);
+    await this.em.persistAndFlush(user.refresh_token);
 
     return AuthTokensDTO.from(
       this.accessJwtService.sign(user.getDefaultPayload()),
-      refreshToken.token
+      user.refresh_token.token
     );
   }
 
@@ -71,33 +93,24 @@ export class AuthService {
       { populate: ["refresh_token"] }
     );
 
-    if (user.refresh_token?.token !== refresh_token)
-      throw new BadRequestException(
-        "The token supplied does not correspond to the one associated with your account."
-      );
+    if (!user || user.refresh_token?.token !== refresh_token)
+      throw new BadRequestException(ApiError.NON_MATCHING_TOKEN);
 
     try {
       await this.refreshJwtService.verifyAsync(user.refresh_token.token);
     } catch (error: unknown) {
-      if (error instanceof TokenExpiredError) {
-        throw new UnauthorizedException(
-          "Your refresh token has expired. Get a new one via auth/login.",
-          `${error.name}: ${error.message}`
-        );
-      }
+      this.logger.debug(error);
 
-      throw error;
+      throw new UnauthorizedException(ApiError.INVALID_TOKEN);
     }
 
-    await this.em.removeAndFlush(user.refresh_token);
+    user.refresh_token.token = this.refreshJwtService.sign({});
 
-    const refreshToken = new RefreshToken({ user, token: this.refreshJwtService.sign({}) });
-
-    await this.em.persistAndFlush(refreshToken);
+    await this.em.persistAndFlush(user.refresh_token);
 
     return AuthTokensDTO.from(
       this.accessJwtService.sign(user.getDefaultPayload()),
-      refreshToken.token
+      user.refresh_token.token
     );
   }
 }

@@ -1,13 +1,10 @@
-import { Entity, OneToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, OneToOne, Property } from "@mikro-orm/core";
+import { BaseEntity } from "../../common/entities/base.entity";
 import { User } from "../../users/entities/user.entity";
 
 @Entity({ tableName: "reset_password_requests" })
-export class ResetPasswordRequest {
-  @PrimaryKey({ autoincrement: true })
-  public id: number;
-
+export class ResetPasswordRequest extends BaseEntity<"verification_code_generated_at"> {
   @OneToOne(() => User, (user) => user.reset_password_request, {
-    nullable: true,
     unique: true,
     owner: true
   })
@@ -24,8 +21,4 @@ export class ResetPasswordRequest {
 
   @Property({ type: "datetime", nullable: true })
   public update_key_generated_at?: Date;
-
-  public constructor(values: Partial<ResetPasswordRequest>) {
-    Object.assign(this, values);
-  }
 }

@@ -1,8 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
 
+/** This DTO is only used as a type and not as an actual DTO. See POST avatars/upload-avatar */
 export class UploadAvatarDTO {
-  @IsNotEmpty()
   @ApiProperty({
     type: "string",
     format: "binary",

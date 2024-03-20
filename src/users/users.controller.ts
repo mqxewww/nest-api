@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Patch,
-  Put,
-  Query
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Put, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
@@ -33,11 +23,7 @@ export class UsersController {
   /** Get a user by UUID or login. */
   @Get("find-one/:search")
   public async findOne(@Param("search") search: string): Promise<UserDTO> {
-    const user = await this.usersService.findOne(search);
-
-    if (!user) throw new NotFoundException("User not found");
-
-    return UserDTO.from(user);
+    return await this.usersService.findOne(search);
   }
 
   /** Get authenticated user information. */
@@ -59,8 +45,8 @@ export class UsersController {
   @ApiBearerAuth()
   @Put("change-password")
   public async changePassword(
-    @Body() body: ChangePasswordDTO,
-    @GetUserUuid() uuid: string
+    @GetUserUuid() uuid: string,
+    @Body() body: ChangePasswordDTO
   ): Promise<boolean> {
     return await this.usersService.changePassword(uuid, body);
   }

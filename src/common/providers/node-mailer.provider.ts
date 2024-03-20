@@ -1,10 +1,7 @@
 import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Transporter, createTransport } from "nodemailer";
-import {
-  NodeMailerHTML,
-  NodeMailerSubject,
-  NodeMailerTemplate
-} from "../templates/node-mailer.template";
+import { ApiError } from "../constants/api-errors.constant";
+import { MailText, MailTextSubject } from "../constants/mail-texts.constant";
 import { NodeMailerResponse } from "../types/node-mailer-response";
 
 @Injectable()
@@ -24,10 +21,10 @@ export class NodeMailerService {
 
   public async sendMail(
     to: string | string[],
-    template: NodeMailerTemplate,
+    subject: MailTextSubject,
     params: Record<string, unknown>
   ): Promise<NodeMailerResponse> {
-    let html = NodeMailerHTML[template];
+    let html = MailText[subject];
 
     for (const key in params)
       if (params.hasOwnProperty(key)) html = html.replace(`{{${key}}}`, `${params[key]}`);
@@ -35,19 +32,23 @@ export class NodeMailerService {
     try {
       const response = (await this.transporter.sendMail({
         to,
-        subject: NodeMailerSubject[template],
+        subject,
         html
       })) as NodeMailerResponse;
+
+      const subjectKey = Object.keys(MailTextSubject).find(
+        (key) => MailTextSubject[key] === subject
+      );
 
       switch (true) {
         case response.accepted.length === 1:
           this.logger.log(
-            `An email was sent to ${response.accepted[0]} for ${template} with the following parameters: ${JSON.stringify(params)}`
+            `An email was sent to ${response.accepted[0]} for ${subjectKey} with the following parameters: ${JSON.stringify(params)}`
           );
           break;
         case response.accepted.length > 1:
           this.logger.log(
-            `An email was sent to ${response.accepted.length} addresses for ${template} with the following parameters: ${JSON.stringify(params)}`
+            `An email was sent to ${response.accepted.length} addresses for ${subjectKey} with the following parameters: ${JSON.stringify(params)}`
           );
           break;
       }
@@ -55,9 +56,8 @@ export class NodeMailerService {
       return response;
     } catch (error: unknown) {
       this.logger.error(error);
-      throw new InternalServerErrorException(
-        "An error occured while sending the email. Please try again later."
-      );
+
+      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
     }
   }
 }

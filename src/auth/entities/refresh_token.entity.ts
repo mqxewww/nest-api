@@ -1,17 +1,12 @@
 import { Entity, OneToOne, Property } from "@mikro-orm/core";
-import { IdAndDates } from "../../common/entities/id-and-dates.entity";
+import { BaseEntity } from "../../common/entities/base.entity";
 import { User } from "../../users/entities/user.entity";
 
 @Entity({ tableName: "refresh_tokens" })
-export class RefreshToken extends IdAndDates {
+export class RefreshToken extends BaseEntity {
   @Property({ type: "text" })
   public token: string;
 
-  @OneToOne(() => User, (user) => user.refresh_token, { nullable: true, unique: true, owner: true })
-  public user?: User;
-
-  public constructor(values: Partial<RefreshToken>) {
-    super();
-    Object.assign(this, values);
-  }
+  @OneToOne(() => User, (user) => user.refresh_token, { unique: true, owner: true })
+  public user: User;
 }

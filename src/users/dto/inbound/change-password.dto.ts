@@ -5,7 +5,6 @@ export class ChangePasswordDTO {
   @IsString()
   public old_password: string;
 
-  @IsNotEmpty()
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,
@@ -13,5 +12,6 @@ export class ChangePasswordDTO {
     minNumbers: 1,
     minSymbols: 0
   })
+  @IsString()
   public new_password: string;
 }
