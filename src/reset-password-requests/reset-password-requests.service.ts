@@ -1,17 +1,10 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  Logger
-} from "@nestjs/common";
+import { BadRequestException, HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { hashSync } from "bcrypt";
 import { ApiError } from "../common/constants/api-errors.constant";
+import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
-import { NodeMailerTemplate } from "../common/templates/node-mailer.template";
 import { User } from "../users/entities/user.entity";
 import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
 import { VerifyCodeDTO } from "./dto/inbound/verify-code.dto";
@@ -61,13 +54,7 @@ export class ResetPasswordRequestsService {
       VERIFICATION_CODE: request.verification_code
     };
 
-    try {
-      await this.nodeMailerService.sendMail(to, NodeMailerTemplate.RESET_PASSWORD_REQUEST, params);
-    } catch (error: unknown) {
-      this.logger.error(error);
-
-      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
-    }
+    await this.nodeMailerService.sendMail(to, MailTextSubject.RESET_PASSWORD_REQUEST, params);
 
     await this.em.persistAndFlush(request);
 
@@ -111,17 +98,11 @@ export class ResetPasswordRequestsService {
       USER_FIRSTNAME: request.user.first_name
     };
 
-    try {
-      await this.nodeMailerService.sendMail(
-        request.user.email,
-        NodeMailerTemplate.PASSWORD_CHANGED,
-        params
-      );
-    } catch (error: unknown) {
-      this.logger.error(error);
-
-      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
-    }
+    await this.nodeMailerService.sendMail(
+      request.user.email,
+      MailTextSubject.PASSWORD_CHANGED,
+      params
+    );
 
     // Remove the user's refresh_token to force a new login.
     if (request.user.refresh_token) await this.em.removeAndFlush(request.user.refresh_token);

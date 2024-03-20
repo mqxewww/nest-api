@@ -1,19 +1,13 @@
 import { FilterQuery } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/mysql";
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException
-} from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
 import { ApiError } from "../common/constants/api-errors.constant";
+import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
 import { UserHelper } from "../common/helpers/user.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
-import { NodeMailerTemplate } from "../common/templates/node-mailer.template";
 import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
@@ -111,17 +105,7 @@ export class UsersService {
       USER_FIRSTNAME: user.first_name
     };
 
-    try {
-      await this.nodeMailerService.sendMail(
-        user.email,
-        NodeMailerTemplate.PASSWORD_CHANGED,
-        params
-      );
-    } catch (error: unknown) {
-      this.logger.error(error);
-
-      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
-    }
+    await this.nodeMailerService.sendMail(user.email, MailTextSubject.PASSWORD_CHANGED, params);
 
     await this.em.persistAndFlush(user);
 
