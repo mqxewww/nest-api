@@ -1,6 +1,14 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger
+} from "@nestjs/common";
 import { hashSync } from "bcrypt";
+import { ApiError } from "../common/constants/api-errors.constant";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
 import { NodeMailerTemplate } from "../common/templates/node-mailer.template";
@@ -13,6 +21,7 @@ import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
 @Injectable()
 export class ResetPasswordRequestsService {
   private readonly REQUEST_EXPIRATION_TIME = 10; // In minutes
+  private readonly logger = new Logger(ResetPasswordRequestsService.name);
 
   public constructor(
     private readonly em: EntityManager,
@@ -24,17 +33,19 @@ export class ResetPasswordRequestsService {
 
     if (!user) return true;
 
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - this.REQUEST_EXPIRATION_TIME);
-
     const existingRequest = await this.em.findOne(ResetPasswordRequest, {
       user
     });
 
+    const date = new Date();
+    date.setMinutes(date.getMinutes() - this.REQUEST_EXPIRATION_TIME);
+
     if (existingRequest) {
+      // Prevents recreating a new request for REQUEST_EXPIRATION_TIME minutes
       if (existingRequest.verification_code_generated_at > date)
-        throw new BadRequestException(
-          "A reset password request is already in progress. Please try again later."
+        throw new HttpException(
+          ApiError.RESET_PASSWORD_REQUEST_IN_PROGRESS,
+          HttpStatus.TOO_MANY_REQUESTS
         );
 
       await this.em.removeAndFlush(existingRequest);
@@ -50,7 +61,13 @@ export class ResetPasswordRequestsService {
       VERIFICATION_CODE: request.verification_code
     };
 
-    await this.nodeMailerService.sendMail(to, NodeMailerTemplate.RESET_PASSWORD_REQUEST, params);
+    try {
+      await this.nodeMailerService.sendMail(to, NodeMailerTemplate.RESET_PASSWORD_REQUEST, params);
+    } catch (error: unknown) {
+      this.logger.error(error);
+
+      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
+    }
 
     await this.em.persistAndFlush(request);
 
@@ -63,18 +80,13 @@ export class ResetPasswordRequestsService {
       verification_code: body.verification_code
     });
 
-    if (!request)
-      throw new BadRequestException(
-        "The verification code entered is invalid. Please verify and try again."
-      );
+    if (!request) throw new BadRequestException(ApiError.INVALID_VERIFICATION_CODE);
 
     const date = new Date();
     date.setMinutes(date.getMinutes() - this.REQUEST_EXPIRATION_TIME);
 
     if (request.verification_code_generated_at < date)
-      throw new BadRequestException(
-        "Your reset password request has expired. Please make a new request."
-      );
+      throw new HttpException(ApiError.EXPIRED_VERIFICATION_CODE, HttpStatus.REQUEST_TIMEOUT);
 
     request.update_key = TokenHelper.generate(32, TokenCharset.BOTH);
     request.update_key_generated_at = new Date();
@@ -89,8 +101,7 @@ export class ResetPasswordRequestsService {
       update_key: body.update_key
     });
 
-    if (!request)
-      throw new BadRequestException("The update key is invalid. Please verify and try again.");
+    if (!request) throw new BadRequestException(ApiError.INVALID_UPDATE_KEY);
 
     request.user.password = hashSync(body.password, 10);
 
@@ -100,11 +111,17 @@ export class ResetPasswordRequestsService {
       USER_FIRSTNAME: request.user.first_name
     };
 
-    await this.nodeMailerService.sendMail(
-      request.user.email,
-      NodeMailerTemplate.PASSWORD_CHANGED,
-      params
-    );
+    try {
+      await this.nodeMailerService.sendMail(
+        request.user.email,
+        NodeMailerTemplate.PASSWORD_CHANGED,
+        params
+      );
+    } catch (error: unknown) {
+      this.logger.error(error);
+
+      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
+    }
 
     // Remove the user's refresh_token to force a new login.
     if (request.user.refresh_token) await this.em.removeAndFlush(request.user.refresh_token);

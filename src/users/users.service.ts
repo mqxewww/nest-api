@@ -1,7 +1,14 @@
 import { FilterQuery } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException
+} from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
+import { ApiError } from "../common/constants/api-errors.constant";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
 import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
 import { UserHelper } from "../common/helpers/user.helper";
@@ -14,6 +21,8 @@ import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   public constructor(
     private readonly em: EntityManager,
     private readonly nodeMailerService: NodeMailerService
@@ -46,24 +55,29 @@ export class UsersService {
     );
   }
 
-  public async findOne(search: string): Promise<User | null> {
-    return await this.em.findOne(
+  public async findOne(search: string): Promise<UserDTO> {
+    const user = await this.em.findOne(
       User,
       {
         $or: [{ uuid: search }, { login: search }]
       },
       { populate: ["avatar"] }
     );
-  }
 
-  public async me(uuid: string): Promise<UserDTO> {
-    const user = await this.em.findOneOrFail(User, { uuid }, { populate: ["avatar"] });
+    if (!user) throw new NotFoundException(ApiError.USER_NOT_FOUND);
 
     return UserDTO.from(user);
   }
 
-  public async patchOne(uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
-    const user = await this.em.findOneOrFail(User, { uuid }, { populate: ["avatar"] });
+  public async me(user_uuid: string): Promise<UserDTO> {
+    const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
+
+    return UserDTO.from(user);
+  }
+
+  // ! Rework route : Update a user => Update the authenticated user instead
+  public async patchOne(user_uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
+    const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
 
     Object.assign(user, query);
 
@@ -89,7 +103,7 @@ export class UsersService {
     const user = await this.em.findOneOrFail(User, { uuid: user_uuid });
 
     if (!bcrypt.compareSync(body.old_password, user.password))
-      throw new BadRequestException("Your old password is wrong. Verify and try again.");
+      throw new BadRequestException(ApiError.INVALID_OLD_PASSWORD);
 
     user.password = hashSync(body.new_password, 10);
 
@@ -97,13 +111,24 @@ export class UsersService {
       USER_FIRSTNAME: user.first_name
     };
 
-    await this.nodeMailerService.sendMail(user.email, NodeMailerTemplate.PASSWORD_CHANGED, params);
+    try {
+      await this.nodeMailerService.sendMail(
+        user.email,
+        NodeMailerTemplate.PASSWORD_CHANGED,
+        params
+      );
+    } catch (error: unknown) {
+      this.logger.error(error);
+
+      throw new InternalServerErrorException(ApiError.EMAIL_ERROR);
+    }
 
     await this.em.persistAndFlush(user);
 
     return true;
   }
 
+  // ! Rework route : Delete a user => Delete the authenticated user instead
   public async deleteOne(uuid: string): Promise<boolean> {
     const user = await this.em.findOneOrFail(User, { uuid });
 
