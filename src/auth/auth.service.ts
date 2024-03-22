@@ -35,8 +35,8 @@ export class AuthService {
     const user = this.em.create(User, {
       first_name: UserHelper.capitalizeFirstname(body.first_name.trim()),
       last_name: body.last_name.trim().toUpperCase(),
-      email: body.email,
-      password: hashSync(body.password, 10)
+      email: body.email.trim(),
+      password: hashSync(body.password.trim(), 10)
     });
 
     user.login = await UserHelper.formatUserLogin(
@@ -78,7 +78,7 @@ export class AuthService {
   public async login(body: LoginDTO): Promise<AuthTokensDTO> {
     const user = await this.em.findOne(User, { login: body.login });
 
-    if (!user || !bcrypt.compareSync(body.password, user.password))
+    if (!user || !bcrypt.compareSync(body.password.trim(), user.password))
       throw new UnauthorizedException(ApiError.INVALID_CREDENTIALS);
 
     user.refresh_token

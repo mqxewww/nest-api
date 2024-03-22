@@ -51,7 +51,7 @@ export class UsersService {
     const user = await this.em.findOne(
       User,
       {
-        $or: [{ uuid: search }, { login: search }]
+        $or: [{ uuid: search }, { login: search.trim() }]
       },
       { populate: ["avatar"] }
     );
@@ -73,8 +73,8 @@ export class UsersService {
     Object.assign(user, query);
 
     const login = await UserHelper.formatUserLogin(
-      user.first_name,
-      user.last_name,
+      UserHelper.capitalizeFirstname(user.first_name.trim()),
+      user.last_name.trim().toUpperCase(),
       async (login) => {
         const userWithNewLogin = await this.em.findOne(User, { login });
 
@@ -93,10 +93,10 @@ export class UsersService {
   public async changePassword(user_uuid: string, body: ChangePasswordDTO): Promise<boolean> {
     const user = await this.em.findOneOrFail(User, { uuid: user_uuid });
 
-    if (!bcrypt.compareSync(body.old_password, user.password))
+    if (!bcrypt.compareSync(body.old_password.trim(), user.password.trim()))
       throw new BadRequestException(ApiError.INVALID_OLD_PASSWORD);
 
-    user.password = hashSync(body.new_password, 10);
+    user.password = hashSync(body.new_password.trim(), 10);
 
     const params: Record<string, unknown> = {
       USER_FIRSTNAME: user.first_name

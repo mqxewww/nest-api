@@ -1,5 +1,5 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { hashSync } from "bcrypt";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { MailTextSubject } from "../common/constants/mail-texts.constant";
@@ -15,7 +15,6 @@ import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
 @Injectable()
 export class ResetPasswordRequestsService {
   private readonly REQUEST_EXPIRATION_TIME = 10; // In minutes
-  private readonly logger = new Logger(ResetPasswordRequestsService.name);
 
   public constructor(
     private readonly em: EntityManager,
@@ -23,7 +22,7 @@ export class ResetPasswordRequestsService {
   ) {}
 
   public async sendRequest(body: SendRequestDTO): Promise<SentResetRequestDataDTO> {
-    const user = await this.em.findOne(User, { email: body.email });
+    const user = await this.em.findOne(User, { email: body.email.trim() });
 
     if (!user) return SentResetRequestDataDTO.build(false, false);
 
@@ -56,7 +55,7 @@ export class ResetPasswordRequestsService {
     };
 
     await this.nodeMailerService.sendMail(
-      body.email,
+      user.email,
       MailTextSubject.RESET_PASSWORD_REQUEST,
       params
     );
@@ -68,8 +67,8 @@ export class ResetPasswordRequestsService {
 
   public async verifyCode(body: VerifyCodeDTO): Promise<{ update_key: string }> {
     const request = await this.em.findOne(ResetPasswordRequest, {
-      user: { email: body.email },
-      verification_code: body.verification_code
+      user: { email: body.email.trim() },
+      verification_code: body.verification_code.trim()
     });
 
     if (!request) throw new BadRequestException(ApiError.INVALID_VERIFICATION_CODE);
@@ -95,7 +94,7 @@ export class ResetPasswordRequestsService {
 
     if (!request) throw new BadRequestException(ApiError.INVALID_UPDATE_KEY);
 
-    request.user.password = hashSync(body.password, 10);
+    request.user.password = hashSync(body.password.trim(), 10);
 
     await this.em.persistAndFlush(request.user);
 
