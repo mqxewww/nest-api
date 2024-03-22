@@ -18,7 +18,10 @@ export class AvatarsService {
     return createReadStream(join(process.cwd(), `./uploads/avatars/${avatar.uuid}.jpg`));
   }
 
-  public async uploadAvatar(user_uuid: string, file: Express.Multer.File): Promise<boolean> {
+  public async uploadAvatar(
+    user_uuid: string,
+    file: Express.Multer.File
+  ): Promise<{ uuid: string }> {
     const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
 
     if (user.avatar) {
@@ -32,6 +35,6 @@ export class AvatarsService {
 
     writeFileSync(`./uploads/avatars/${user.avatar.uuid}.jpg`, file.buffer);
 
-    return true;
+    return { uuid: user.avatar.uuid };
   }
 }

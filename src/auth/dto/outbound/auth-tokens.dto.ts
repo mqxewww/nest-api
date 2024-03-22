@@ -1,11 +1,12 @@
-export class AuthTokensDTO {
-  public readonly access_token: string;
-  public readonly refresh_token: string;
+import { RefreshToken } from "../../entities/refresh_token.entity";
 
-  public static from(access_token: string, refresh_token: string): AuthTokensDTO {
-    return {
-      access_token,
-      refresh_token
-    };
+export class AuthTokensDTO {
+  public constructor(
+    public readonly access_token: string,
+    public readonly refresh_token: string
+  ) {}
+
+  public static build(refresh_token: RefreshToken, access_token: string): AuthTokensDTO {
+    return new AuthTokensDTO(access_token, refresh_token.token);
   }
 }

@@ -3,12 +3,12 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AllowExpiredAccessToken } from "../common/decorators/allow-expired-access-token.decorator";
 import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { Public } from "../common/decorators/public.decorator";
-import { UserDTO } from "../users/dto/outbound/user.dto";
 import { AuthService } from "./auth.service";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RefreshDTO } from "./dto/inbound/refresh.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
+import { NewRegisteredUserDTO } from "./dto/outbound/new-registered-user.dto";
 
 @ApiTags("auth")
 @Controller("auth")
@@ -18,7 +18,7 @@ export class AuthController {
   /** Registers a new user. Login is automatically generated from user's firstName and lastName. */
   @Public()
   @Post("register")
-  public async register(@Body() body: RegisterDTO): Promise<UserDTO> {
+  public async register(@Body() body: RegisterDTO): Promise<NewRegisteredUserDTO> {
     return await this.authService.register(body);
   }
 

@@ -1,21 +1,23 @@
 import { User } from "../../entities/user.entity";
 
 export class UserDTO {
-  public uuid: string;
-  public first_name: string;
-  public last_name: string;
-  public email: string;
-  public login: string;
-  public avatar_uuid: string | null;
+  public constructor(
+    public readonly uuid: string,
+    public readonly first_name: string,
+    public readonly last_name: string,
+    public readonly email: string,
+    public readonly login: string,
+    public readonly avatar_uuid: string | null
+  ) {}
 
-  public static from(user: User): UserDTO {
-    return {
-      uuid: user.uuid,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      login: user.login,
-      avatar_uuid: user.avatar?.uuid ?? null
-    };
+  public static build(user: User): UserDTO {
+    return new UserDTO(
+      user.uuid,
+      user.first_name,
+      user.last_name,
+      user.email,
+      user.login,
+      user.avatar ? user.avatar.uuid : null
+    );
   }
 }

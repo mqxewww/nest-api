@@ -1,8 +1,13 @@
-export class EntitiesAndCount<T> {
-  public readonly count: number;
-  public readonly entities: T[];
+export class EntitiesAndCountDTO<T> {
+  public constructor(
+    public readonly entities: T[],
+    public readonly count: number
+  ) {}
 
-  public static from<T>(entities: T[], count: number): EntitiesAndCount<T> {
-    return { count, entities };
+  /**
+   * @param count - Count corresponds to the number of entities in the db according to the search filters, excluding the limit.
+   */
+  public static build<T>(entities: T[], count: number): EntitiesAndCountDTO<T> {
+    return new EntitiesAndCountDTO(entities, count);
   }
 }

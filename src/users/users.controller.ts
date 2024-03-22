@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Put, Query } from "@nestjs
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
-import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
+import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
 import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
@@ -16,7 +16,7 @@ export class UsersController {
 
   /** Finds users based on the provided query parameters. */
   @Get("find")
-  public async find(@Query() query: FindEntitiesQueryDTO): Promise<EntitiesAndCount<UserDTO>> {
+  public async find(@Query() query: FindEntitiesQueryDTO): Promise<EntitiesAndCountDTO<UserDTO>> {
     return await this.usersService.find(query);
   }
 

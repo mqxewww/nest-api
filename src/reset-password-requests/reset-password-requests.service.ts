@@ -6,9 +6,10 @@ import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
 import { User } from "../users/entities/user.entity";
+import { SendRequestDTO } from "./dto/inbound/send-request.dto";
 import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
 import { VerifyCodeDTO } from "./dto/inbound/verify-code.dto";
-import { VerificationResponseDTO } from "./dto/outbound/verification-response.dto";
+import { SentResetRequestDataDTO } from "./dto/outbound/sent-reset-request-data.dto";
 import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
 
 @Injectable()
@@ -21,10 +22,10 @@ export class ResetPasswordRequestsService {
     private readonly nodeMailerService: NodeMailerService
   ) {}
 
-  public async sendRequest(to: string): Promise<boolean> {
-    const user = await this.em.findOne(User, { email: to });
+  public async sendRequest(body: SendRequestDTO): Promise<SentResetRequestDataDTO> {
+    const user = await this.em.findOne(User, { email: body.email });
 
-    if (!user) return true;
+    if (!user) return SentResetRequestDataDTO.build(false, false);
 
     const existingRequest = await this.em.findOne(ResetPasswordRequest, {
       user
@@ -54,14 +55,18 @@ export class ResetPasswordRequestsService {
       VERIFICATION_CODE: request.verification_code
     };
 
-    await this.nodeMailerService.sendMail(to, MailTextSubject.RESET_PASSWORD_REQUEST, params);
+    await this.nodeMailerService.sendMail(
+      body.email,
+      MailTextSubject.RESET_PASSWORD_REQUEST,
+      params
+    );
 
     await this.em.persistAndFlush(request);
 
-    return true;
+    return SentResetRequestDataDTO.build(true, true);
   }
 
-  public async verifyCode(body: VerifyCodeDTO): Promise<VerificationResponseDTO> {
+  public async verifyCode(body: VerifyCodeDTO): Promise<{ update_key: string }> {
     const request = await this.em.findOne(ResetPasswordRequest, {
       user: { email: body.email },
       verification_code: body.verification_code
@@ -80,7 +85,7 @@ export class ResetPasswordRequestsService {
 
     await this.em.persistAndFlush(request);
 
-    return VerificationResponseDTO.from(request.update_key);
+    return { update_key: request.update_key };
   }
 
   public async updateUserPassword(body: UpdateUserPasswordDTO): Promise<boolean> {

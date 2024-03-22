@@ -6,13 +6,13 @@ export class FindEntitiesQueryDTO {
   @IsOptional()
   public search?: string;
 
-  @Transform(({ value }) => parseInt(value))
   @IsNumber()
+  @Transform(({ value }: { value: string }) => parseInt(value))
   @IsOptional()
   public limit?: number;
 
-  @Transform(({ value }) => parseInt(value))
   @IsNumber()
+  @Transform(({ value }: { value: string }) => parseInt(value))
   @IsOptional()
   public offset?: number;
 }

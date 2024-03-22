@@ -42,8 +42,8 @@ export class AvatarsController {
 
   /** Uploads a new avatar. Will be linked to the authenticated user. */
   @ApiBearerAuth()
-  @ApiConsumes("multipart/form-data")
   @ApiBody({ type: UploadAvatarDTO })
+  @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("file"))
   @Post("upload-avatar")
   public async uploadAvatar(
@@ -55,7 +55,7 @@ export class AvatarsController {
       })
     )
     file: Express.Multer.File
-  ): Promise<boolean> {
+  ): Promise<{ uuid: string }> {
     return this.avatarsService.uploadAvatar(uuid, file);
   }
 }

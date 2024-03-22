@@ -10,11 +10,11 @@ import { JwtService } from "@nestjs/jwt";
 import bcrypt, { hashSync } from "bcrypt";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { UserHelper } from "../common/helpers/user.helper";
-import { UserDTO } from "../users/dto/outbound/user.dto";
 import { User } from "../users/entities/user.entity";
 import { LoginDTO } from "./dto/inbound/login.dto";
 import { RegisterDTO } from "./dto/inbound/register.dto";
 import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
+import { NewRegisteredUserDTO } from "./dto/outbound/new-registered-user.dto";
 import { RefreshToken } from "./entities/refresh_token.entity";
 
 @Injectable()
@@ -31,10 +31,10 @@ export class AuthService {
     private readonly refreshJwtService: JwtService
   ) {}
 
-  public async register(body: RegisterDTO): Promise<UserDTO> {
+  public async register(body: RegisterDTO): Promise<NewRegisteredUserDTO> {
     const user = this.em.create(User, {
-      first_name: body.first_name,
-      last_name: body.last_name,
+      first_name: UserHelper.capitalizeFirstname(body.first_name.trim()),
+      last_name: body.last_name.trim().toUpperCase(),
       email: body.email,
       password: hashSync(body.password, 10)
     });
@@ -62,7 +62,17 @@ export class AuthService {
       throw error;
     }
 
-    return UserDTO.from(user);
+    user.refresh_token = this.em.create(RefreshToken, {
+      token: this.refreshJwtService.sign({}),
+      user
+    });
+
+    await this.em.persistAndFlush(user.refresh_token);
+
+    return NewRegisteredUserDTO.build(
+      user as User & { refresh_token: RefreshToken },
+      this.accessJwtService.sign(user.getDefaultPayload())
+    );
   }
 
   public async login(body: LoginDTO): Promise<AuthTokensDTO> {
@@ -80,9 +90,9 @@ export class AuthService {
 
     await this.em.persistAndFlush(user.refresh_token);
 
-    return AuthTokensDTO.from(
-      this.accessJwtService.sign(user.getDefaultPayload()),
-      user.refresh_token.token
+    return AuthTokensDTO.build(
+      user.refresh_token,
+      this.accessJwtService.sign(user.getDefaultPayload())
     );
   }
 
@@ -93,7 +103,7 @@ export class AuthService {
       { populate: ["refresh_token"] }
     );
 
-    if (!user || user.refresh_token?.token !== refresh_token)
+    if (user.refresh_token?.token !== refresh_token)
       throw new BadRequestException(ApiError.NON_MATCHING_TOKEN);
 
     try {
@@ -108,9 +118,9 @@ export class AuthService {
 
     await this.em.persistAndFlush(user.refresh_token);
 
-    return AuthTokensDTO.from(
-      this.accessJwtService.sign(user.getDefaultPayload()),
-      user.refresh_token.token
+    return AuthTokensDTO.build(
+      user.refresh_token,
+      this.accessJwtService.sign(user.getDefaultPayload())
     );
   }
 }

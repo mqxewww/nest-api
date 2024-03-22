@@ -22,14 +22,18 @@ export class User extends BaseEntity<"login"> {
   @Property()
   public password: string;
 
-  @OneToOne(() => Avatar, (avatar) => avatar.user, { nullable: true })
+  @OneToOne(() => Avatar, (avatar) => avatar.user, { nullable: true, orphanRemoval: true })
   public avatar?: Avatar;
 
-  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, { nullable: true })
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, {
+    nullable: true,
+    orphanRemoval: true
+  })
   public refresh_token?: RefreshToken;
 
   @OneToOne(() => ResetPasswordRequest, (resetPasswordRequest) => resetPasswordRequest.user, {
-    nullable: true
+    nullable: true,
+    orphanRemoval: true
   })
   public reset_password_request?: ResetPasswordRequest;
 

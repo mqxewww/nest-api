@@ -1,11 +1,11 @@
 import { FilterQuery } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import bcrypt, { hashSync } from "bcrypt";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
-import { EntitiesAndCount } from "../common/dto/outbound/entities-and-count.dto";
+import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
 import { UserHelper } from "../common/helpers/user.helper";
 import { NodeMailerService } from "../common/providers/node-mailer.provider";
 import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
@@ -15,14 +15,12 @@ import { User } from "./entities/user.entity";
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
-
   public constructor(
     private readonly em: EntityManager,
     private readonly nodeMailerService: NodeMailerService
   ) {}
 
-  public async find(query: FindEntitiesQueryDTO): Promise<EntitiesAndCount<UserDTO>> {
+  public async find(query: FindEntitiesQueryDTO): Promise<EntitiesAndCountDTO<UserDTO>> {
     const queryFilters: FilterQuery<User> = {};
 
     if (query.search) {
@@ -43,8 +41,8 @@ export class UsersService {
       this.em.count(User, queryFilters)
     ]);
 
-    return EntitiesAndCount.from(
-      users.map((user) => UserDTO.from(user)),
+    return EntitiesAndCountDTO.build(
+      users.map((user) => UserDTO.build(user)),
       count
     );
   }
@@ -60,16 +58,15 @@ export class UsersService {
 
     if (!user) throw new NotFoundException(ApiError.USER_NOT_FOUND);
 
-    return UserDTO.from(user);
+    return UserDTO.build(user);
   }
 
   public async me(user_uuid: string): Promise<UserDTO> {
     const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
 
-    return UserDTO.from(user);
+    return UserDTO.build(user);
   }
 
-  // ! Rework route : Update a user => Update the authenticated user instead
   public async patchOne(user_uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
     const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
 
@@ -90,7 +87,7 @@ export class UsersService {
 
     await this.em.persistAndFlush(user);
 
-    return UserDTO.from(user);
+    return UserDTO.build(user);
   }
 
   public async changePassword(user_uuid: string, body: ChangePasswordDTO): Promise<boolean> {
@@ -109,10 +106,12 @@ export class UsersService {
 
     await this.em.persistAndFlush(user);
 
+    // Remove the user's refresh_token to force a new login.
+    if (user.refresh_token) await this.em.removeAndFlush(user.refresh_token);
+
     return true;
   }
 
-  // ! Rework route : Delete a user => Delete the authenticated user instead
   public async deleteOne(uuid: string): Promise<boolean> {
     const user = await this.em.findOneOrFail(User, { uuid });
 
