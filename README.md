@@ -6,15 +6,7 @@ NestJS API where I try everything that comes to mind.
 
 ## Setup
 
-- In `./config`, copy `.env.example` to `.env` and fill in the values
-- Generate RSA keys and place them in `./config`, must be named `private_key.pem` and `public_key.pem`
-- Run the following commands:
-
-```
-npm i
-npm run docker:init
-npm run mikro-orm-schema-update
-```
+- Execute `./setup.sh`, then go to `./config/.env` and fill in the values
 
 ## Features :sparkles:
 
