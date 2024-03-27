@@ -71,7 +71,7 @@ export class AuthService {
 
     return NewRegisteredUserDTO.build(
       user as User & { refresh_token: RefreshToken },
-      this.accessJwtService.sign(user.getDefaultPayload())
+      this.accessJwtService.sign(UserHelper.getAuthPayload(user))
     );
   }
 
@@ -92,7 +92,7 @@ export class AuthService {
 
     return AuthTokensDTO.build(
       user.refresh_token,
-      this.accessJwtService.sign(user.getDefaultPayload())
+      this.accessJwtService.sign(UserHelper.getAuthPayload(user))
     );
   }
 
@@ -120,7 +120,7 @@ export class AuthService {
 
     return AuthTokensDTO.build(
       user.refresh_token,
-      this.accessJwtService.sign(user.getDefaultPayload())
+      this.accessJwtService.sign(UserHelper.getAuthPayload(user))
     );
   }
 }
