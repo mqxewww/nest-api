@@ -30,11 +30,11 @@ export class NodeMailerService {
       if (params.hasOwnProperty(key)) html = html.replace(`{{${key}}}`, `${params[key]}`);
 
     try {
-      const response = (await this.transporter.sendMail({
+      const response: NodeMailerResponse = await this.transporter.sendMail({
         to,
         subject,
         html
-      })) as NodeMailerResponse;
+      });
 
       const subjectKey = Object.keys(MailTextSubject).find(
         (key) => MailTextSubject[key] === subject

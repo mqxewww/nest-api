@@ -5,5 +5,5 @@ export const EntityManagerMock = {
   create: jest.fn(),
   count: jest.fn(),
   persistAndFlush: jest.fn(),
-  removeAndFlush: jest.fn()
+  removeAndFlush: jest.fn().mockReturnValue(((): void => {})())
 };

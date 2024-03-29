@@ -3,7 +3,7 @@ import { AuthPayload } from "../types/auth-payload";
 
 export const GetUserUuid = createParamDecorator((data, context: ExecutionContext): string => {
   const request = context.switchToHttp().getRequest<Request>();
-  const payload = request["payload"] as AuthPayload;
+  const payload: AuthPayload = request["payload"];
 
   return payload.uuid;
 });

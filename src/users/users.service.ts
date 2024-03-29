@@ -68,7 +68,9 @@ export class UsersService {
   }
 
   public async patchOne(user_uuid: string, query: PatchUserQueryDTO): Promise<UserDTO> {
-    const user = await this.em.findOneOrFail(User, { uuid: user_uuid }, { populate: ["avatar"] });
+    const user = await this.em.findOne(User, { uuid: user_uuid }, { populate: ["avatar"] });
+
+    if (!user) throw new NotFoundException(ApiError.USER_NOT_FOUND);
 
     Object.assign(user, query);
 
@@ -112,8 +114,10 @@ export class UsersService {
     return true;
   }
 
-  public async deleteOne(uuid: string): Promise<boolean> {
-    const user = await this.em.findOneOrFail(User, { uuid });
+  public async deleteOne(user_uuid: string): Promise<boolean> {
+    const user = await this.em.findOne(User, { uuid: user_uuid });
+
+    if (!user) throw new NotFoundException(ApiError.USER_NOT_FOUND);
 
     await this.em.removeAndFlush(user);
 
