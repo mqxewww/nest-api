@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
 import { EntityManager } from "@mikro-orm/mysql";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
@@ -14,6 +14,7 @@ import { getMockedUser } from "./mocks/user-entity.mock";
 import { UsersService } from "./users.service";
 
 describe("UsersService", () => {
+  let bcrypt: BcryptMock;
   let em: EntityManagerMock;
   let service: UsersService;
 
@@ -27,8 +28,9 @@ describe("UsersService", () => {
       ]
     }).compile();
 
-    service = module.get(UsersService);
+    bcrypt = module.get("bcrypt");
     em = module.get(EntityManager);
+    service = module.get(UsersService);
   });
 
   describe("find", () => {
@@ -128,6 +130,37 @@ describe("UsersService", () => {
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
+      }
+    });
+  });
+
+  describe("change-password", () => {
+    it("should return true", async () => {
+      const user = getMockedUser();
+
+      em.findOneOrFail.mockReturnValue(user);
+      em.persistAndFlush.mockReturnValue(user);
+
+      bcrypt.compareSync.mockReturnValue(true);
+      bcrypt.hashSync.mockReturnValue("");
+
+      const result = await service.changePassword(user.uuid, {
+        old_password: "",
+        new_password: ""
+      });
+
+      expect(result).toEqual(true);
+    });
+
+    it("should throw a BadRequestException", async () => {
+      em.findOneOrFail.mockReturnValue(getMockedUser());
+      bcrypt.compareSync.mockReturnValue(false);
+
+      try {
+        await service.changePassword("", { old_password: "", new_password: "" });
+      } catch (err) {
+        expect(err).toBeInstanceOf(BadRequestException);
+        expect(err.response).toEqual(ApiError.INVALID_OLD_PASSWORD);
       }
     });
   });
