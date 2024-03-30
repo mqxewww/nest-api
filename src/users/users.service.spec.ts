@@ -5,29 +5,30 @@ import { NotFoundException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
+import { BcryptMock } from "../common/mocks/bcrypt.mock";
 import { EntityManagerMock } from "../common/mocks/entity-manager.mock";
-import { NodeMailerMock } from "../common/mocks/node-mailer.mock";
-import { NodeMailerService } from "../common/providers/node-mailer.provider";
+import { NodemailerMock } from "../common/mocks/nodemailer.mock";
 import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
 import { UserDTO } from "./dto/outbound/user.dto";
 import { getMockedUser } from "./mocks/user-entity.mock";
 import { UsersService } from "./users.service";
 
-describe("UsersService - users.service.ts", () => {
+describe("UsersService", () => {
+  let em: EntityManagerMock;
   let service: UsersService;
-  let emMock: typeof EntityManagerMock;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        UsersService,
-        { provide: EntityManager, useValue: EntityManagerMock },
-        { provide: NodeMailerService, useClass: NodeMailerMock }
+        { provide: "nodemailer", useClass: NodemailerMock },
+        { provide: "bcrypt", useClass: BcryptMock },
+        { provide: EntityManager, useClass: EntityManagerMock },
+        UsersService
       ]
     }).compile();
 
     service = module.get(UsersService);
-    emMock = module.get(EntityManager);
+    em = module.get(EntityManager);
   });
 
   describe("find", () => {
@@ -35,8 +36,8 @@ describe("UsersService - users.service.ts", () => {
       const users = [getMockedUser(), getMockedUser()];
       const count = 5;
 
-      emMock.find.mockReturnValue(users);
-      emMock.count.mockReturnValue(count);
+      em.find.mockReturnValue(users);
+      em.count.mockReturnValue(count);
 
       const result = await service.find({});
 
@@ -54,7 +55,7 @@ describe("UsersService - users.service.ts", () => {
     it("should return one user", async () => {
       const user = getMockedUser();
 
-      emMock.findOne.mockReturnValue(user);
+      em.findOne.mockReturnValue(user);
 
       const result = await service.findOne("");
 
@@ -63,7 +64,7 @@ describe("UsersService - users.service.ts", () => {
     });
 
     it("should throw a NotFoundException", async () => {
-      emMock.findOne.mockReturnValue(false);
+      em.findOne.mockReturnValue(false);
 
       try {
         await service.findOne("");
@@ -80,7 +81,7 @@ describe("UsersService - users.service.ts", () => {
     it("should return the authenticated user", async () => {
       const user = getMockedUser();
 
-      emMock.findOneOrFail.mockReturnValue(user);
+      em.findOneOrFail.mockReturnValue(user);
 
       const result = await service.me("");
 
@@ -104,8 +105,8 @@ describe("UsersService - users.service.ts", () => {
         login: userQuery.login
       };
 
-      EntityManagerMock.findOne.mockReturnValue(existingUser);
-      EntityManagerMock.persistAndFlush.mockReturnValue(updatedUser);
+      em.findOne.mockReturnValue(existingUser);
+      em.persistAndFlush.mockReturnValue(updatedUser);
 
       jest.mock("../common/helpers/user.helper", () => ({
         formatUserLogin: jest.fn().mockReturnValue(userQuery.login)
@@ -118,7 +119,7 @@ describe("UsersService - users.service.ts", () => {
     });
 
     it("should throw a NotFoundException", async () => {
-      emMock.findOne.mockReturnValue(false);
+      em.findOne.mockReturnValue(false);
 
       try {
         await service.patchOne("", {});
@@ -133,7 +134,7 @@ describe("UsersService - users.service.ts", () => {
 
   describe("delete-one", () => {
     it("should return true", async () => {
-      emMock.findOne.mockReturnValue(getMockedUser());
+      em.findOne.mockReturnValue(getMockedUser());
 
       const result = await service.deleteOne("");
 
@@ -141,7 +142,7 @@ describe("UsersService - users.service.ts", () => {
     });
 
     it("should throw a NotFoundException", async () => {
-      emMock.findOne.mockReturnValue(false);
+      em.findOne.mockReturnValue(false);
 
       try {
         await service.deleteOne("");

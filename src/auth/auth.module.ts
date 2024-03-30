@@ -1,10 +1,11 @@
 import { Module } from "@nestjs/common";
-import { CustomJwtModule } from "../common/modules/custom-jwt.module";
+import { BcryptModule } from "../common/providers/bcrypt.provider";
+import { CustomJwtModule } from "../common/providers/custom-jwt.provider";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 
 @Module({
-  imports: [CustomJwtModule],
+  imports: [CustomJwtModule, BcryptModule],
   controllers: [AuthController],
   providers: [AuthService]
 })

@@ -1,5 +1,5 @@
 import { User } from "../../users/entities/user.entity";
-import { AuthPayload } from "../types/auth-payload";
+import { JwtPayload } from "../providers/custom-jwt.provider";
 
 export class UserHelper {
   public static async formatUserLogin(
@@ -36,7 +36,7 @@ export class UserHelper {
     return formattedName;
   }
 
-  public static getAuthPayload(user: User): AuthPayload {
+  public static getJwtPayload(user: User): JwtPayload {
     return {
       sub: user.id,
       uuid: user.uuid,

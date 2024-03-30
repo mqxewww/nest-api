@@ -3,6 +3,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import fs from "fs";
 
+export type JwtPayload = {
+  sub: number;
+  uuid: string;
+  first_name: string;
+  last_name: string;
+};
+
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -13,18 +20,18 @@ import fs from "fs";
         privateKey: fs.readFileSync("./config/private_key.pem"),
         signOptions: {
           algorithm: "RS256",
-          expiresIn: config.get<string>("ACCESS_TOKEN_EXPIRES_IN")
+          expiresIn: config.get("ACCESS_TOKEN_EXPIRES_IN")
         }
       })
     })
   ],
   providers: [
     {
-      provide: "AccessJwtService",
+      provide: "accessJwt",
       useExisting: JwtService
     }
   ],
-  exports: ["AccessJwtService"]
+  exports: ["accessJwt"]
 })
 class AccessJwtModule {}
 
@@ -45,11 +52,11 @@ class AccessJwtModule {}
   ],
   providers: [
     {
-      provide: "RefreshJwtService",
+      provide: "refreshJwt",
       useExisting: JwtService
     }
   ],
-  exports: ["RefreshJwtService"]
+  exports: ["refreshJwt"]
 })
 class RefreshJwtModule {}
 
