@@ -1,5 +1,6 @@
 import { EntityManager } from "@mikro-orm/mysql";
 import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import moment from "moment";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
@@ -35,12 +36,11 @@ export class ResetPasswordRequestsService {
       user
     });
 
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - this.REQUEST_EXPIRATION_TIME);
+    const date = moment().subtract(this.REQUEST_EXPIRATION_TIME, "minutes");
 
     if (existingRequest) {
       // Prevents recreating a new request for REQUEST_EXPIRATION_TIME minutes
-      if (existingRequest.verification_code_generated_at > date)
+      if (moment(existingRequest.verification_code_generated_at).isAfter(date))
         throw new HttpException(
           ApiError.RESET_PASSWORD_REQUEST_IN_PROGRESS,
           HttpStatus.TOO_MANY_REQUESTS
@@ -78,14 +78,13 @@ export class ResetPasswordRequestsService {
 
     if (!request) throw new BadRequestException(ApiError.INVALID_VERIFICATION_CODE);
 
-    const date = new Date();
-    date.setMinutes(date.getMinutes() - this.REQUEST_EXPIRATION_TIME);
+    const date = moment().subtract(this.REQUEST_EXPIRATION_TIME, "minutes");
 
-    if (request.verification_code_generated_at < date)
+    if (moment(request.verification_code_generated_at).isAfter(date))
       throw new HttpException(ApiError.EXPIRED_VERIFICATION_CODE, HttpStatus.REQUEST_TIMEOUT);
 
     request.update_key = TokenHelper.generate(32, TokenCharset.BOTH);
-    request.update_key_generated_at = new Date();
+    request.update_key_generated_at = moment().toDate();
 
     await this.em.persistAndFlush(request);
 
