@@ -11,11 +11,12 @@ import { SendRequestDTO } from "./dto/inbound/send-request.dto";
 import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
 import { VerifyCodeDTO } from "./dto/inbound/verify-code.dto";
 import { SentResetRequestDataDTO } from "./dto/outbound/sent-reset-request-data.dto";
+import { VerifiedCodeDTO } from "./dto/outbound/verified-code.dto";
 import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
 
 @Injectable()
 export class ResetPasswordRequestsService {
-  private readonly REQUEST_EXPIRATION_TIME = 10; // In minutes
+  private readonly REQUEST_EXPIRATION_TIME = 10 * 60; // In seconds
 
   public constructor(
     private readonly em: EntityManager,
@@ -36,11 +37,14 @@ export class ResetPasswordRequestsService {
       user
     });
 
-    const date = moment().subtract(this.REQUEST_EXPIRATION_TIME, "minutes");
-
     if (existingRequest) {
-      // Prevents recreating a new request for REQUEST_EXPIRATION_TIME minutes
-      if (moment(existingRequest.verification_code_generated_at).isAfter(date))
+      // Prevents recreating a new request for REQUEST_EXPIRATION_TIME seconds
+      if (
+        !(
+          moment().diff(existingRequest.verification_code_generated_at, "seconds") >
+          this.REQUEST_EXPIRATION_TIME
+        )
+      )
         throw new HttpException(
           ApiError.RESET_PASSWORD_REQUEST_IN_PROGRESS,
           HttpStatus.TOO_MANY_REQUESTS
@@ -70,7 +74,7 @@ export class ResetPasswordRequestsService {
     return SentResetRequestDataDTO.build(true, true);
   }
 
-  public async verifyCode(body: VerifyCodeDTO): Promise<{ update_key: string }> {
+  public async verifyCode(body: VerifyCodeDTO): Promise<VerifiedCodeDTO> {
     const request = await this.em.findOne(ResetPasswordRequest, {
       user: { email: body.email.trim() },
       verification_code: body.verification_code.trim()
@@ -78,9 +82,10 @@ export class ResetPasswordRequestsService {
 
     if (!request) throw new BadRequestException(ApiError.INVALID_VERIFICATION_CODE);
 
-    const date = moment().subtract(this.REQUEST_EXPIRATION_TIME, "minutes");
-
-    if (moment(request.verification_code_generated_at).isAfter(date))
+    if (
+      moment().diff(request.verification_code_generated_at, "seconds") >
+      this.REQUEST_EXPIRATION_TIME
+    )
       throw new HttpException(ApiError.EXPIRED_VERIFICATION_CODE, HttpStatus.REQUEST_TIMEOUT);
 
     request.update_key = TokenHelper.generate(32, TokenCharset.BOTH);
@@ -88,7 +93,7 @@ export class ResetPasswordRequestsService {
 
     await this.em.persistAndFlush(request);
 
-    return { update_key: request.update_key };
+    return VerifiedCodeDTO.build(request.update_key);
   }
 
   public async updateUserPassword(body: UpdateUserPasswordDTO): Promise<boolean> {

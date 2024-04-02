@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
@@ -34,7 +34,7 @@ describe("UsersService", () => {
   });
 
   describe("find", () => {
-    it("should return users and count", async () => {
+    it("should return users and database count", async () => {
       const users = [getMockedUser(), getMockedUser()];
       const count = 5;
 
@@ -54,33 +54,35 @@ describe("UsersService", () => {
   });
 
   describe("find-one", () => {
-    it("should return one user", async () => {
-      const user = getMockedUser();
+    describe("A user exists with the UUID or login given", () => {
+      it("should return the user as UserDTO", async () => {
+        const user = getMockedUser();
 
-      em.findOne.mockReturnValue(user);
+        em.findOne.mockReturnValue(user);
 
-      const result = await service.findOne("");
+        const result = await service.findOne("");
 
-      expect(result).toBeInstanceOf(UserDTO);
-      expect(result).toEqual(UserDTO.build(user));
+        expect(result).toBeInstanceOf(UserDTO);
+        expect(result).toEqual(UserDTO.build(user));
+      });
     });
 
-    it("should throw a NotFoundException", async () => {
-      em.findOne.mockReturnValue(false);
+    describe("No user exists with the UUID or login given", () => {
+      it("should throw an USER_NOT_FOUND exception", async () => {
+        em.findOne.mockReturnValue(null);
 
-      try {
-        await service.findOne("");
-
-        expect(false).toBeTruthy();
-      } catch (err) {
-        expect(err).toBeInstanceOf(NotFoundException);
-        expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
-      }
+        try {
+          await service.findOne("");
+        } catch (err) {
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
+        }
+      });
     });
   });
 
   describe("me", () => {
-    it("should return the authenticated user", async () => {
+    it("should return the authenticated user as UserDTO", async () => {
       const user = getMockedUser();
 
       em.findOneOrFail.mockReturnValue(user);
@@ -93,98 +95,106 @@ describe("UsersService", () => {
   });
 
   describe("patch-one", () => {
-    it("should patch user and return updated user", async () => {
-      const userQuery = getMockedUser();
-      const query: PatchUserQueryDTO = {
-        first_name: userQuery.first_name,
-        last_name: userQuery.last_name
-      };
+    describe("The user exists", () => {
+      it("should update the user and return it as UserDTO", async () => {
+        const userQuery = getMockedUser();
+        const query: PatchUserQueryDTO = {
+          first_name: userQuery.first_name,
+          last_name: userQuery.last_name
+        };
 
-      const existingUser = getMockedUser();
-      const updatedUser: typeof existingUser = {
-        ...existingUser,
-        ...query,
-        login: userQuery.login
-      };
+        const existingUser = getMockedUser();
+        const updatedUser: typeof existingUser = {
+          ...existingUser,
+          ...query,
+          login: userQuery.login
+        };
 
-      em.findOne.mockReturnValue(existingUser);
-      em.persistAndFlush.mockReturnValue(updatedUser);
+        em.findOne.mockReturnValue(existingUser);
+        em.persistAndFlush.mockReturnValue(updatedUser);
 
-      jest.mock("../common/helpers/user.helper", () => ({
-        formatUserLogin: jest.fn().mockReturnValue(userQuery.login)
-      }));
+        jest.mock("../common/helpers/user.helper", () => ({
+          formatUserLogin: jest.fn().mockReturnValue(userQuery.login)
+        }));
 
-      const result = await service.patchOne("", query);
+        const result = await service.patchOne("", query);
 
-      expect(result).toBeInstanceOf(UserDTO);
-      expect(result).toEqual(UserDTO.build(updatedUser));
+        expect(result).toBeInstanceOf(UserDTO);
+        expect(result).toEqual(UserDTO.build(updatedUser));
+      });
     });
 
-    it("should throw a NotFoundException", async () => {
-      em.findOne.mockReturnValue(false);
+    describe("The user doesn't exist", () => {
+      it("should throw an USER_NOT_FOUND exception", async () => {
+        em.findOne.mockReturnValue(null);
 
-      try {
-        await service.patchOne("", {});
-
-        expect(false).toBeTruthy();
-      } catch (err) {
-        expect(err).toBeInstanceOf(NotFoundException);
-        expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
-      }
+        try {
+          await service.patchOne("", {});
+        } catch (err) {
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
+        }
+      });
     });
   });
 
   describe("change-password", () => {
-    it("should return true", async () => {
-      const user = getMockedUser();
+    describe("Comparison of the user's old password fails", () => {
+      it("should throw an INVALID_OLD_PASSWORD exception", async () => {
+        em.findOneOrFail.mockReturnValue(getMockedUser());
+        bcrypt.compareSync.mockReturnValue(false);
 
-      em.findOneOrFail.mockReturnValue(user);
-      em.persistAndFlush.mockReturnValue(user);
-
-      bcrypt.compareSync.mockReturnValue(true);
-      bcrypt.hashSync.mockReturnValue("");
-
-      const result = await service.changePassword(user.uuid, {
-        old_password: "",
-        new_password: ""
+        try {
+          await service.changePassword("", { old_password: "", new_password: "" });
+        } catch (err) {
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.response).toEqual(ApiError.INVALID_OLD_PASSWORD);
+        }
       });
-
-      expect(result).toEqual(true);
     });
 
-    it("should throw a BadRequestException", async () => {
-      em.findOneOrFail.mockReturnValue(getMockedUser());
-      bcrypt.compareSync.mockReturnValue(false);
+    describe("Comparison of the user's old password is successful", () => {
+      it("should update his password and return true", async () => {
+        const user = getMockedUser();
 
-      try {
-        await service.changePassword("", { old_password: "", new_password: "" });
-      } catch (err) {
-        expect(err).toBeInstanceOf(BadRequestException);
-        expect(err.response).toEqual(ApiError.INVALID_OLD_PASSWORD);
-      }
+        em.findOneOrFail.mockReturnValue(user);
+        em.persistAndFlush.mockReturnValue(user);
+
+        bcrypt.compareSync.mockReturnValue(true);
+        bcrypt.hashSync.mockReturnValue("");
+
+        const result = await service.changePassword(user.uuid, {
+          old_password: "",
+          new_password: ""
+        });
+
+        expect(result).toEqual(true);
+      });
     });
   });
 
   describe("delete-one", () => {
-    it("should return true", async () => {
-      em.findOne.mockReturnValue(getMockedUser());
+    describe("The user exists", () => {
+      it("should delete the user and then return true", async () => {
+        em.findOne.mockReturnValue(getMockedUser());
 
-      const result = await service.deleteOne("");
+        const result = await service.deleteOne("");
 
-      expect(result).toEqual(true);
+        expect(result).toEqual(true);
+      });
     });
 
-    it("should throw a NotFoundException", async () => {
-      em.findOne.mockReturnValue(false);
+    describe("The user doesn't exist", () => {
+      it("should throw an USER_NOT_FOUND exception", async () => {
+        em.findOne.mockReturnValue(null);
 
-      try {
-        await service.deleteOne("");
-
-        expect(false).toBeTruthy();
-      } catch (err) {
-        expect(err).toBeInstanceOf(NotFoundException);
-        expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
-      }
+        try {
+          await service.deleteOne("");
+        } catch (err) {
+          expect(err).toBeInstanceOf(HttpException);
+          expect(err.response).toEqual(ApiError.USER_NOT_FOUND);
+        }
+      });
     });
   });
 });

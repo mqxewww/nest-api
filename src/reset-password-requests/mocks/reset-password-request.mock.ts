@@ -1,4 +1,5 @@
 import { fakerFR as faker } from "@faker-js/faker";
+import moment from "moment";
 import { TokenCharset, TokenHelper } from "../../common/helpers/token.helper";
 import { ResetPasswordRequest } from "../entities/reset-password-request.entity";
 
@@ -10,10 +11,10 @@ export function getMockedResetPasswordRequest(
   return {
     id: params?.id ?? faker.number.int(),
     uuid: params?.uuid ?? faker.string.uuid(),
-    created_at: params?.created_at ?? faker.date.recent(),
-    updated_at: params?.updated_at ?? faker.date.recent(),
+    created_at: params?.created_at ?? moment().toDate(),
+    updated_at: params?.updated_at ?? moment().toDate(),
     verification_code:
       params?.verification_code ?? TokenHelper.generate(6, TokenCharset.NUMBERS_ONLY),
-    verification_code_generated_at: params?.verification_code_generated_at ?? faker.date.recent()
+    verification_code_generated_at: params?.verification_code_generated_at ?? moment().toDate()
   };
 }
