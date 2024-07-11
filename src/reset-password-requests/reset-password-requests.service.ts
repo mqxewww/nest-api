@@ -88,9 +88,13 @@ export class ResetPasswordRequestsService {
   }
 
   public async updateUserPassword(body: UpdateUserPasswordDTO): Promise<boolean> {
-    const request = await this.em.findOne(ResetPasswordRequest, {
-      update_key: body.update_key
-    });
+    const request = await this.em.findOne(
+      ResetPasswordRequest,
+      {
+        update_key: body.update_key
+      },
+      { populate: ["user"] }
+    );
 
     if (!request) throw new BadRequestException(ApiError.INVALID_UPDATE_KEY);
 
