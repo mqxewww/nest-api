@@ -8,19 +8,19 @@ import { ResetPasswordRequest } from "../../reset-password-requests/entities/res
 @Entity({ tableName: "users" })
 export class User extends BaseEntity<"login"> {
   @Property()
-  public first_name: string;
+  public first_name!: string;
 
   @Property()
-  public last_name: string;
+  public last_name!: string;
 
   @Property({ unique: true })
-  public email: string;
+  public email!: string;
 
   @Property({ unique: true })
-  public login: string;
+  public login!: string;
 
   @Property()
-  public password: string;
+  public password!: string;
 
   @OneToOne(() => Avatar, (avatar) => avatar.user, { nullable: true, orphanRemoval: true })
   public avatar?: Avatar;

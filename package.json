@@ -7,12 +7,12 @@
   },
   "scripts": {
     "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
     "start:prod": "node src/main",
     "build": "nest build",
     "mikro-orm-schema-update": "npx --yes mikro-orm schema:update --run",
     "mikro-orm-init-database": "npx --yes mikro-orm schema:fresh --run --seed InitDatabaseSeeder",
-    "format": "prettier --write \"**/*.ts\" && eslint \"**/*.ts\"",
+    "format": "prettier --write \"**/*.{ts,json}\"",
+    "check": "eslint \"**/*.ts\" && tsc --noEmit",
     "docker:init": "docker-compose up --detach"
   },
   "author": {

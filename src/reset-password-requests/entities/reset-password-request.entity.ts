@@ -8,13 +8,13 @@ export class ResetPasswordRequest extends BaseEntity<"verification_code_generate
     unique: true,
     owner: true
   })
-  public user: User;
+  public user!: User;
 
   @Property()
-  public verification_code: string;
+  public verification_code!: string;
 
   @Property({ defaultRaw: "CURRENT_TIMESTAMP" })
-  public verification_code_generated_at: Date;
+  public verification_code_generated_at!: Date;
 
   @Property({ nullable: true })
   public update_key?: string;

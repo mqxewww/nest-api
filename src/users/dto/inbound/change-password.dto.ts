@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
 export class ChangePasswordDTO {
   @IsNotEmpty()
   @IsString()
-  public old_password: string;
+  public old_password!: string;
 
   @IsStrongPassword({
     minLength: 8,
@@ -13,5 +13,5 @@ export class ChangePasswordDTO {
     minSymbols: 0
   })
   @IsString()
-  public new_password: string;
+  public new_password!: string;
 }

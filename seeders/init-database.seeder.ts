@@ -8,15 +8,12 @@ import { User } from "../src/users/entities/user.entity";
 
 export class InitDatabaseSeeder extends Seeder {
   private readonly logger = new Logger(InitDatabaseSeeder.name);
-  private em: EntityManager;
 
   public async run(em: EntityManager): Promise<void> {
-    this.em = em;
-
-    await this.handleUsersCreation(5);
+    await this.handleUsersCreation(5, em);
   }
 
-  private async handleUsersCreation(count: number): Promise<User[]> {
+  private async handleUsersCreation(count: number, em: EntityManager): Promise<User[]> {
     this.logger.log(`Creating ${count} users`);
 
     const users: User[] = [];
@@ -37,14 +34,14 @@ export class InitDatabaseSeeder extends Seeder {
         user.last_name,
         async (login) => {
           // Login is valid if it's not already taken
-          return !(await this.em.findOne(User, { login }));
+          return !(await em.findOne(User, { login }));
         }
       );
 
       users.push(user);
     }
 
-    await this.em.persistAndFlush(users);
+    await em.persistAndFlush(users);
 
     return users;
   }

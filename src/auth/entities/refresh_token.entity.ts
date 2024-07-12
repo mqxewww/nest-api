@@ -5,8 +5,8 @@ import { User } from "../../users/entities/user.entity";
 @Entity({ tableName: "refresh_tokens" })
 export class RefreshToken extends BaseEntity {
   @Property({ type: "text" })
-  public token: string;
+  public token!: string;
 
   @OneToOne(() => User, (user) => user.refresh_token, { unique: true, owner: true })
-  public user: User;
+  public user!: User;
 }

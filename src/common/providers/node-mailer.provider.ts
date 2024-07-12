@@ -37,7 +37,7 @@ export class NodeMailerService {
       })) as NodeMailerResponse;
 
       const subjectKey = Object.keys(MailTextSubject).find(
-        (key) => MailTextSubject[key] === subject
+        (key) => MailTextSubject[key as keyof typeof MailTextSubject] === subject
       );
 
       switch (true) {

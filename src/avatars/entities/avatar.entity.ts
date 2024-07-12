@@ -5,5 +5,5 @@ import { User } from "../../users/entities/user.entity";
 @Entity({ tableName: "avatars" })
 export class Avatar extends BaseEntity {
   @OneToOne(() => User, (user) => user.avatar, { unique: true, owner: true })
-  public user: User;
+  public user!: User;
 }

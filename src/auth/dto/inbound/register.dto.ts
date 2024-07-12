@@ -3,11 +3,11 @@ import { IsEmail, IsNotEmpty, IsString, IsStrongPassword } from "class-validator
 export class RegisterDTO {
   @IsNotEmpty()
   @IsString()
-  public first_name: string;
+  public first_name!: string;
 
   @IsNotEmpty()
   @IsString()
-  public last_name: string;
+  public last_name!: string;
 
   @IsStrongPassword({
     minLength: 8,
@@ -17,8 +17,8 @@ export class RegisterDTO {
     minSymbols: 0
   })
   @IsString()
-  public password: string;
+  public password!: string;
 
   @IsEmail()
-  public email: string;
+  public email!: string;
 }

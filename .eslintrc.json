@@ -1,7 +1,7 @@
 {
   "env": {
     "node": true,
-    "es2020": true
+    "jest": true
   },
   "extends": [
     "eslint:recommended",
@@ -9,10 +9,7 @@
     "plugin:sonarjs/recommended-legacy",
     "prettier"
   ],
-  "plugins": [
-    "@typescript-eslint/eslint-plugin",
-    "sonarjs"
-  ],
+  "plugins": ["@typescript-eslint/eslint-plugin", "sonarjs"],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
     "ecmaVersion": "latest",

@@ -1,9 +1,8 @@
 import { ExecutionContext, createParamDecorator } from "@nestjs/common";
-import { AuthPayload } from "../types/auth-payload";
+import { AuthenticatedRequest } from "../types/authenticated-request";
 
-export const GetUserUuid = createParamDecorator((data, context: ExecutionContext): string => {
-  const request = context.switchToHttp().getRequest<Request>();
-  const payload = request["payload"] as AuthPayload;
+export const GetUserUuid = createParamDecorator((_, context: ExecutionContext): string => {
+  const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-  return payload.uuid;
+  return request.user.uuid;
 });

@@ -8,7 +8,7 @@ import { ApiError } from "../constants/api-errors.constant";
 
 @Catch(UniqueConstraintViolationException, NotNullConstraintViolationException)
 export class DatabaseExceptionFilter implements ExceptionFilter {
-  public catch(exception: unknown, host: ArgumentsHost): void {
+  public catch(_: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
