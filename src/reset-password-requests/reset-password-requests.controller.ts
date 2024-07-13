@@ -5,6 +5,7 @@ import { SendRequestDTO } from "./dto/inbound/send-request.dto";
 import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
 import { VerifyCodeDTO } from "./dto/inbound/verify-code.dto";
 import { SentResetRequestDataDTO } from "./dto/outbound/sent-reset-request-data.dto";
+import { VerifiedCodeDTO } from "./dto/outbound/verified-code.dto";
 import { ResetPasswordRequestsService } from "./reset-password-requests.service";
 
 @ApiTags("reset-password-requests")
@@ -22,7 +23,7 @@ export class ResetPasswordRequestsController {
   /** Verify the request code, used to verify that the user is the owner of this account.  */
   @Public()
   @Post("verify-code")
-  public async verifyCode(@Body() body: VerifyCodeDTO): Promise<{ update_key: string }> {
+  public async verifyCode(@Body() body: VerifyCodeDTO): Promise<VerifiedCodeDTO> {
     return await this.resetPasswordRequestsService.verifyCode(body);
   }
 
