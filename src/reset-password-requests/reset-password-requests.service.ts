@@ -1,10 +1,10 @@
 import { EntityManager } from "@mikro-orm/mysql";
-import { BadRequestException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { hashSync } from "bcrypt";
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { MailTextSubject } from "../common/constants/mail-texts.constant";
 import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
-import { NodeMailerService } from "../common/providers/node-mailer.provider";
+import { Bcrypt } from "../common/providers/bcrypt.provider";
+import { NodemailerClass } from "../common/providers/nodemailer.provider";
 import { User } from "../users/entities/user.entity";
 import { SendRequestDTO } from "./dto/inbound/send-request.dto";
 import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
@@ -18,7 +18,12 @@ export class ResetPasswordRequestsService {
 
   public constructor(
     private readonly em: EntityManager,
-    private readonly nodeMailerService: NodeMailerService
+
+    @Inject("nodemailer")
+    private readonly nodemailerProvider: NodemailerClass,
+
+    @Inject("bcrypt")
+    private readonly bcryptProvider: Bcrypt
   ) {}
 
   public async sendRequest(body: SendRequestDTO): Promise<SentResetRequestDataDTO> {
@@ -54,7 +59,7 @@ export class ResetPasswordRequestsService {
       VERIFICATION_CODE: request.verification_code
     };
 
-    await this.nodeMailerService.sendMail(
+    await this.nodemailerProvider.sendMail(
       user.email,
       MailTextSubject.RESET_PASSWORD_REQUEST,
       params
@@ -98,7 +103,7 @@ export class ResetPasswordRequestsService {
 
     if (!request) throw new BadRequestException(ApiError.INVALID_UPDATE_KEY);
 
-    request.user.password = hashSync(body.password.trim(), 10);
+    request.user.password = this.bcryptProvider.hashSync(body.password.trim(), 10);
 
     await this.em.persistAndFlush(request.user);
 
@@ -106,7 +111,7 @@ export class ResetPasswordRequestsService {
       USER_FIRSTNAME: request.user.first_name
     };
 
-    await this.nodeMailerService.sendMail(
+    await this.nodemailerProvider.sendMail(
       request.user.email,
       MailTextSubject.PASSWORD_CHANGED,
       params

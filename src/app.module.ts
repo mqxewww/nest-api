@@ -8,7 +8,9 @@ import { LoggerModule } from "nestjs-pino";
 import { AuthGuard } from "./auth/auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { AvatarsModule } from "./avatars/avatars.module";
-import { CustomJwtModule } from "./common/modules/custom-jwt.module";
+import { BcryptModule } from "./common/providers/bcrypt.provider";
+import { CustomJwtModule } from "./common/providers/custom-jwt.provider";
+import { NodemailerModule } from "./common/providers/nodemailer.provider";
 import { ResetPasswordRequestsModule } from "./reset-password-requests/reset-password-requests.module";
 import { UsersModule } from "./users/users.module";
 
@@ -60,11 +62,14 @@ import { UsersModule } from "./users/users.module";
       }
     ]),
     MikroOrmModule.forRoot(),
-    CustomJwtModule,
     AuthModule,
     AvatarsModule,
     ResetPasswordRequestsModule,
-    UsersModule
+    UsersModule,
+    // Providers
+    BcryptModule,
+    CustomJwtModule,
+    NodemailerModule
   ],
   providers: [
     {

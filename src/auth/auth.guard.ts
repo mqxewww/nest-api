@@ -12,7 +12,7 @@ import { Request } from "express";
 import { ApiError } from "../common/constants/api-errors.constant";
 import { ALLOW_EXPIRED_ACCESS_TOKEN_KEY } from "../common/decorators/allow-expired-access-token.decorator";
 import { IS_PUBLIC_KEY } from "../common/decorators/public.decorator";
-import { AuthPayload } from "../common/types/auth-payload";
+import { AccessTokenPayload } from "../common/types/access-token-payload";
 import { AuthenticatedRequest } from "../common/types/authenticated-request";
 
 @Injectable()
@@ -22,8 +22,8 @@ export class AuthGuard implements CanActivate {
   public constructor(
     private readonly reflector: Reflector,
 
-    @Inject("AccessJwtService")
-    private readonly accessJwtService: JwtService
+    @Inject("accessJwt")
+    private readonly accessJwtProvider: JwtService
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -40,7 +40,7 @@ export class AuthGuard implements CanActivate {
     if (type !== "Bearer" || !token) throw new UnauthorizedException(ApiError.MISSING_TOKEN);
 
     try {
-      const payload = await this.accessJwtService.verifyAsync<AuthPayload>(token);
+      const payload = await this.accessJwtProvider.verifyAsync<AccessTokenPayload>(token);
 
       (request as AuthenticatedRequest).user = payload;
     } catch (error: unknown) {
@@ -56,7 +56,7 @@ export class AuthGuard implements CanActivate {
           if (!allowExpiredAccessToken) throw new UnauthorizedException(ApiError.INVALID_TOKEN);
 
           // Unverified token, payload still needed in some cases
-          (request as AuthenticatedRequest).user = this.accessJwtService.decode(token);
+          (request as AuthenticatedRequest).user = this.accessJwtProvider.decode(token);
 
           return true;
         case error instanceof JsonWebTokenError:

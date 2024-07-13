@@ -1,6 +1,6 @@
 import { Request } from "express";
-import { AuthPayload } from "./auth-payload";
+import { AccessTokenPayload } from "./access-token-payload";
 
 export interface AuthenticatedRequest extends Request {
-  user: AuthPayload;
+  user: AccessTokenPayload;
 }

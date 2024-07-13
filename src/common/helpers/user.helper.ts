@@ -1,3 +1,6 @@
+import { User } from "../../users/entities/user.entity";
+import { AccessTokenPayload } from "../types/access-token-payload";
+
 export class UserHelper {
   public static async formatUserLogin(
     first_name: string,
@@ -31,5 +34,14 @@ export class UserHelper {
     }
 
     return formattedName;
+  }
+
+  public static getAccessTokenPayload(user: User): AccessTokenPayload {
+    return {
+      sub: user.id,
+      uuid: user.uuid,
+      first_name: user.first_name,
+      last_name: user.last_name
+    };
   }
 }

@@ -1,4 +1,4 @@
-export type AuthPayload = {
+export type AccessTokenPayload = {
   sub: number;
   uuid: string;
   first_name: string;
