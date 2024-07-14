@@ -1,5 +1,6 @@
 import { Entity, OptionalProps, PrimaryKey, Property } from "@mikro-orm/core";
 
+// ! I should rename BaseEntity to something else, BaseEntity exists in @mikro-orm/core
 @Entity({ abstract: true })
 export abstract class BaseEntity<Optional = never> {
   public [OptionalProps]?: Optional | "id" | "uuid" | "created_at" | "updated_at";

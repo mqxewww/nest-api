@@ -2,9 +2,9 @@ import { EntityManager } from "@mikro-orm/mysql";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ReadStream, createReadStream, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
-import { ApiError } from "../common/constants/api-errors.constant";
-import { User } from "../users/entities/user.entity";
-import { Avatar } from "./entities/avatar.entity";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { Avatar } from "~routes/avatars/entities/avatar.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 @Injectable()
 export class AvatarsService {

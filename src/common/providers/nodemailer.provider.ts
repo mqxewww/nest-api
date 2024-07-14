@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, Logger, Module } from "@nestjs/common";
 import { Transporter, createTransport } from "nodemailer";
-import { ApiError } from "../constants/api-errors.constant";
-import { MailText, MailTextSubject } from "../constants/mail-texts.constant";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { MailText, MailTextSubject } from "~common/constants/mail-texts.constant";
 
 type NodemailerResponse = {
   accepted: string[];

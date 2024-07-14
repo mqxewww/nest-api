@@ -1,17 +1,17 @@
 import { FilterQuery } from "@mikro-orm/core";
 import { EntityManager } from "@mikro-orm/mysql";
 import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { ApiError } from "../common/constants/api-errors.constant";
-import { MailTextSubject } from "../common/constants/mail-texts.constant";
-import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
-import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
-import { UserHelper } from "../common/helpers/user.helper";
-import { Bcrypt } from "../common/providers/bcrypt.provider";
-import { NodemailerClass } from "../common/providers/nodemailer.provider";
-import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
-import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
-import { UserDTO } from "./dto/outbound/user.dto";
-import { User } from "./entities/user.entity";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { MailTextSubject } from "~common/constants/mail-texts.constant";
+import { FindEntitiesQueryDTO } from "~common/dto/inbound/find-entities-query.dto";
+import { EntitiesAndCountDTO } from "~common/dto/outbound/entities-and-count.dto";
+import { UserHelper } from "~common/helpers/user.helper";
+import { Bcrypt } from "~common/providers/bcrypt.provider";
+import { NodemailerClass } from "~common/providers/nodemailer.provider";
+import { ChangePasswordDTO } from "~routes/users/dto/inbound/change-password.dto";
+import { PatchUserQueryDTO } from "~routes/users/dto/inbound/patch-user-query.dto";
+import { UserDTO } from "~routes/users/dto/outbound/user.dto";
+import { User } from "~routes/users/entities/user.entity";
 
 @Injectable()
 export class UsersService {

@@ -1,6 +1,6 @@
 import { Entity, OneToOne, Property } from "@mikro-orm/core";
-import { BaseEntity } from "../../common/entities/base.entity";
-import { User } from "../../users/entities/user.entity";
+import { BaseEntity } from "~common/entities/base.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 @Entity({ tableName: "refresh_tokens" })
 export class RefreshToken extends BaseEntity {

@@ -1,14 +1,14 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { AllowExpiredAccessToken } from "../common/decorators/allow-expired-access-token.decorator";
-import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
-import { Public } from "../common/decorators/public.decorator";
-import { AuthService } from "./auth.service";
-import { LoginDTO } from "./dto/inbound/login.dto";
-import { RefreshDTO } from "./dto/inbound/refresh.dto";
-import { RegisterDTO } from "./dto/inbound/register.dto";
-import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
-import { NewRegisteredUserDTO } from "./dto/outbound/new-registered-user.dto";
+import { AllowExpiredAccessToken } from "~common/decorators/allow-expired-access-token.decorator";
+import { GetUserUuid } from "~common/decorators/get-user-uuid.decorator";
+import { Public } from "~common/decorators/public.decorator";
+import { AuthService } from "~routes/auth/auth.service";
+import { LoginDTO } from "~routes/auth/dto/inbound/login.dto";
+import { RefreshDTO } from "~routes/auth/dto/inbound/refresh.dto";
+import { RegisterDTO } from "~routes/auth/dto/inbound/register.dto";
+import { AuthTokensDTO } from "~routes/auth/dto/outbound/auth-tokens.dto";
+import { NewRegisteredUserDTO } from "~routes/auth/dto/outbound/new-registered-user.dto";
 
 @ApiTags("auth")
 @Controller("auth")

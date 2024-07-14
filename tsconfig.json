@@ -13,7 +13,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "outDir": "./dist",
     "paths": {
-      "src/*": ["./src/*"]
+      "~common/*": ["./src/common/*"],
+      "~routes/*": ["./src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

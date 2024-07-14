@@ -4,7 +4,7 @@ import {
 } from "@mikro-orm/core";
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
 import { Response } from "express";
-import { ApiError } from "../constants/api-errors.constant";
+import { ApiError } from "~common/constants/api-errors.constant";
 
 @Catch(UniqueConstraintViolationException, NotNullConstraintViolationException)
 export class DatabaseExceptionFilter implements ExceptionFilter {

@@ -1,8 +1,8 @@
 import { Entity, OneToOne, Property } from "@mikro-orm/core";
-import { RefreshToken } from "../../auth/entities/refresh_token.entity";
-import { Avatar } from "../../avatars/entities/avatar.entity";
-import { BaseEntity } from "../../common/entities/base.entity";
-import { ResetPasswordRequest } from "../../reset-password-requests/entities/reset-password-request.entity";
+import { BaseEntity } from "~common/entities/base.entity";
+import { RefreshToken } from "~routes/auth/entities/refresh_token.entity";
+import { Avatar } from "~routes/avatars/entities/avatar.entity";
+import { ResetPasswordRequest } from "~routes/reset-password-requests/entities/reset-password-request.entity";
 
 @Entity({ tableName: "users" })
 export class User extends BaseEntity<"login"> {

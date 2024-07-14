@@ -9,11 +9,11 @@ import {
 import { Reflector } from "@nestjs/core";
 import { JsonWebTokenError, JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { Request } from "express";
-import { ApiError } from "../common/constants/api-errors.constant";
-import { ALLOW_EXPIRED_ACCESS_TOKEN_KEY } from "../common/decorators/allow-expired-access-token.decorator";
-import { IS_PUBLIC_KEY } from "../common/decorators/public.decorator";
-import { AccessTokenPayload } from "../common/types/access-token-payload";
-import { AuthenticatedRequest } from "../common/types/authenticated-request";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { ALLOW_EXPIRED_ACCESS_TOKEN_KEY } from "~common/decorators/allow-expired-access-token.decorator";
+import { IS_PUBLIC_KEY } from "~common/decorators/public.decorator";
+import { AccessTokenPayload } from "~common/types/access-token-payload";
+import { AuthenticatedRequest } from "~common/types/authenticated-request";
 
 @Injectable()
 export class AuthGuard implements CanActivate {

@@ -5,14 +5,14 @@ import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import Joi from "joi";
 import { LoggerModule } from "nestjs-pino";
-import { AuthGuard } from "./auth/auth.guard";
-import { AuthModule } from "./auth/auth.module";
-import { AvatarsModule } from "./avatars/avatars.module";
-import { BcryptModule } from "./common/providers/bcrypt.provider";
-import { CustomJwtModule } from "./common/providers/custom-jwt.provider";
-import { NodemailerModule } from "./common/providers/nodemailer.provider";
-import { ResetPasswordRequestsModule } from "./reset-password-requests/reset-password-requests.module";
-import { UsersModule } from "./users/users.module";
+import { BcryptModule } from "~common/providers/bcrypt.provider";
+import { CustomJwtModule } from "~common/providers/custom-jwt.provider";
+import { NodemailerModule } from "~common/providers/nodemailer.provider";
+import { AuthGuard } from "~routes/auth/auth.guard";
+import { AuthModule } from "~routes/auth/auth.module";
+import { AvatarsModule } from "~routes/avatars/avatars.module";
+import { ResetPasswordRequestsModule } from "~routes/reset-password-requests/reset-password-requests.module";
+import { UsersModule } from "~routes/users/users.module";
 
 @Module({
   imports: [

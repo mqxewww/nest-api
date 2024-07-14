@@ -7,15 +7,15 @@ import {
   UnauthorizedException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { ApiError } from "../common/constants/api-errors.constant";
-import { UserHelper } from "../common/helpers/user.helper";
-import { Bcrypt } from "../common/providers/bcrypt.provider";
-import { User } from "../users/entities/user.entity";
-import { LoginDTO } from "./dto/inbound/login.dto";
-import { RegisterDTO } from "./dto/inbound/register.dto";
-import { AuthTokensDTO } from "./dto/outbound/auth-tokens.dto";
-import { NewRegisteredUserDTO } from "./dto/outbound/new-registered-user.dto";
-import { RefreshToken } from "./entities/refresh_token.entity";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { UserHelper } from "~common/helpers/user.helper";
+import { Bcrypt } from "~common/providers/bcrypt.provider";
+import { LoginDTO } from "~routes/auth/dto/inbound/login.dto";
+import { RegisterDTO } from "~routes/auth/dto/inbound/register.dto";
+import { AuthTokensDTO } from "~routes/auth/dto/outbound/auth-tokens.dto";
+import { NewRegisteredUserDTO } from "~routes/auth/dto/outbound/new-registered-user.dto";
+import { RefreshToken } from "~routes/auth/entities/refresh_token.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 @Injectable()
 export class AuthService {

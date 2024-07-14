@@ -1,4 +1,4 @@
-import { User } from "../../entities/user.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 export class UserDTO {
   public constructor(

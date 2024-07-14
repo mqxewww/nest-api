@@ -1,5 +1,5 @@
-import { User } from "../../users/entities/user.entity";
-import { AccessTokenPayload } from "../types/access-token-payload";
+import { AccessTokenPayload } from "~common/types/access-token-payload";
+import { User } from "~routes/users/entities/user.entity";
 
 export class UserHelper {
   public static async formatUserLogin(

@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Put, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
-import { FindEntitiesQueryDTO } from "../common/dto/inbound/find-entities-query.dto";
-import { EntitiesAndCountDTO } from "../common/dto/outbound/entities-and-count.dto";
-import { ChangePasswordDTO } from "./dto/inbound/change-password.dto";
-import { PatchUserQueryDTO } from "./dto/inbound/patch-user-query.dto";
-import { UserDTO } from "./dto/outbound/user.dto";
-import { UsersService } from "./users.service";
+import { GetUserUuid } from "~common/decorators/get-user-uuid.decorator";
+import { FindEntitiesQueryDTO } from "~common/dto/inbound/find-entities-query.dto";
+import { EntitiesAndCountDTO } from "~common/dto/outbound/entities-and-count.dto";
+import { ChangePasswordDTO } from "~routes/users/dto/inbound/change-password.dto";
+import { PatchUserQueryDTO } from "~routes/users/dto/inbound/patch-user-query.dto";
+import { UserDTO } from "~routes/users/dto/outbound/user.dto";
+import { UsersService } from "~routes/users/users.service";
 
 @ApiBearerAuth()
 @ApiTags("users")

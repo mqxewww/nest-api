@@ -3,8 +3,8 @@ import { EntityManager } from "@mikro-orm/mysql";
 import { Seeder } from "@mikro-orm/seeder";
 import { Logger } from "@nestjs/common";
 import { hashSync } from "bcrypt";
-import { UserHelper } from "../src/common/helpers/user.helper";
-import { User } from "../src/users/entities/user.entity";
+import { UserHelper } from "~common/helpers/user.helper";
+import { User } from "~routes/users/entities/user.entity";
 
 export class InitDatabaseSeeder extends Seeder {
   private readonly logger = new Logger(InitDatabaseSeeder.name);

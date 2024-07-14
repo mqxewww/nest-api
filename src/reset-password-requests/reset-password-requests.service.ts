@@ -1,18 +1,18 @@
 import { EntityManager } from "@mikro-orm/mysql";
 import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import moment from "moment";
-import { ApiError } from "../common/constants/api-errors.constant";
-import { MailTextSubject } from "../common/constants/mail-texts.constant";
-import { TokenCharset, TokenHelper } from "../common/helpers/token.helper";
-import { Bcrypt } from "../common/providers/bcrypt.provider";
-import { NodemailerClass } from "../common/providers/nodemailer.provider";
-import { User } from "../users/entities/user.entity";
-import { SendRequestDTO } from "./dto/inbound/send-request.dto";
-import { UpdateUserPasswordDTO } from "./dto/inbound/update-user-password.dto";
-import { VerifyCodeDTO } from "./dto/inbound/verify-code.dto";
-import { SentResetRequestDataDTO } from "./dto/outbound/sent-reset-request-data.dto";
-import { VerifiedCodeDTO } from "./dto/outbound/verified-code.dto";
-import { ResetPasswordRequest } from "./entities/reset-password-request.entity";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { MailTextSubject } from "~common/constants/mail-texts.constant";
+import { TokenCharset, TokenHelper } from "~common/helpers/token.helper";
+import { Bcrypt } from "~common/providers/bcrypt.provider";
+import { NodemailerClass } from "~common/providers/nodemailer.provider";
+import { SendRequestDTO } from "~routes/reset-password-requests/dto/inbound/send-request.dto";
+import { UpdateUserPasswordDTO } from "~routes/reset-password-requests/dto/inbound/update-user-password.dto";
+import { VerifyCodeDTO } from "~routes/reset-password-requests/dto/inbound/verify-code.dto";
+import { SentResetRequestDataDTO } from "~routes/reset-password-requests/dto/outbound/sent-reset-request-data.dto";
+import { VerifiedCodeDTO } from "~routes/reset-password-requests/dto/outbound/verified-code.dto";
+import { ResetPasswordRequest } from "~routes/reset-password-requests/entities/reset-password-request.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 @Injectable()
 export class ResetPasswordRequestsService {
