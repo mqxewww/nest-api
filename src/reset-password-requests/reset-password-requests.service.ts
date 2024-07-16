@@ -21,11 +21,11 @@ export class ResetPasswordRequestsService {
   public constructor(
     private readonly em: EntityManager,
 
-    @Inject("nodemailer")
-    private readonly nodemailerProvider: NodemailerClass,
-
     @Inject("bcrypt")
-    private readonly bcryptProvider: Bcrypt
+    private readonly bcryptProvider: Bcrypt,
+
+    @Inject("nodemailer")
+    private readonly nodemailerProvider: NodemailerClass
   ) {}
 
   public async sendRequest(body: SendRequestDTO): Promise<SentResetRequestDataDTO> {
@@ -105,6 +105,9 @@ export class ResetPasswordRequestsService {
 
     if (!request) throw new BadRequestException(ApiError.INVALID_UPDATE_KEY);
 
+    if (moment().diff(request.update_key_generated_at, "seconds") > this.REQUEST_EXPIRATION_TIME)
+      throw new HttpException(ApiError.EXPIRED_VERIFICATION_CODE, HttpStatus.REQUEST_TIMEOUT);
+
     request.user.password = this.bcryptProvider.hashSync(body.password.trim(), 10);
 
     await this.em.persistAndFlush(request.user);
@@ -118,9 +121,6 @@ export class ResetPasswordRequestsService {
       MailTextSubject.PASSWORD_CHANGED,
       params
     );
-
-    // Remove the user's refresh_token to force a new login.
-    if (request.user.refresh_token) await this.em.removeAndFlush(request.user.refresh_token);
 
     await this.em.removeAndFlush(request);
 

@@ -13,6 +13,9 @@
     "mikro-orm-init-database": "npx --yes mikro-orm schema:fresh --run --seed InitDatabaseSeeder",
     "format": "prettier --write \"**/*.{ts,json}\"",
     "check": "eslint \"**/*.ts\" && tsc --noEmit",
+    "test": "jest",
+    "test:cov": "jest --coverage",
+    "test:clear": "jest --clearCache",
     "docker:init": "docker-compose up --detach"
   },
   "author": {
@@ -92,22 +95,5 @@
       "./mikro-orm.config.ts",
       "./dist/mikro-orm.config.js"
     ]
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
