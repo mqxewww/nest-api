@@ -14,10 +14,10 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
-import { GetUserUuid } from "../common/decorators/get-user-uuid.decorator";
-import { Public } from "../common/decorators/public.decorator";
-import { AvatarsService } from "./avatars.service";
-import { UploadAvatarDTO } from "./dto/inbound/upload-avatar.dto";
+import { GetUserUuid } from "~common/decorators/get-user-uuid.decorator";
+import { Public } from "~common/decorators/public.decorator";
+import { AvatarsService } from "~routes/avatars/avatars.service";
+import { UploadAvatarDTO } from "~routes/avatars/dto/inbound/upload-avatar.dto";
 
 @ApiTags("avatars")
 @Controller("avatars")

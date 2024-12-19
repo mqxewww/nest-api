@@ -1,23 +1,27 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "baseUrl": "./",
     "declaration": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "module": "commonjs",
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
     "outDir": "./dist",
+    "paths": {
+      "~common/*": ["./src/common/*"],
+      "~routes/*": ["./src/*"]
+    },
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictBindCallApply": false,
-    "strictNullChecks": true,
+    "strict": true,
     "target": "ES2021"
   }
 }

@@ -3,9 +3,9 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class VerifyCodeDTO {
   @IsNotEmpty()
   @IsString()
-  public email: string;
+  public email!: string;
 
   @IsNotEmpty()
   @IsString()
-  public verification_code: string;
+  public verification_code!: string;
 }

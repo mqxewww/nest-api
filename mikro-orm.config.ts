@@ -2,7 +2,7 @@ import { defineConfig } from "@mikro-orm/mysql";
 import { SeedManager } from "@mikro-orm/seeder";
 import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { config } from "dotenv";
-import { ApiError } from "./src/common/constants/api-errors.constant";
+import { ApiError } from "~common/constants/api-errors.constant";
 
 const logger = new Logger("MikroORMConfig");
 

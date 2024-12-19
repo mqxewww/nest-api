@@ -1,5 +1,5 @@
-import { User } from "../../../users/entities/user.entity";
-import { RefreshToken } from "../../entities/refresh_token.entity";
+import { RefreshToken } from "~routes/auth/entities/refresh_token.entity";
+import { User } from "~routes/users/entities/user.entity";
 
 export class NewRegisteredUserDTO {
   public constructor(

@@ -20,11 +20,11 @@ import fs from "fs";
   ],
   providers: [
     {
-      provide: "AccessJwtService",
+      provide: "accessJwt",
       useExisting: JwtService
     }
   ],
-  exports: ["AccessJwtService"]
+  exports: ["accessJwt"]
 })
 class AccessJwtModule {}
 
@@ -45,11 +45,11 @@ class AccessJwtModule {}
   ],
   providers: [
     {
-      provide: "RefreshJwtService",
+      provide: "refreshJwt",
       useExisting: JwtService
     }
   ],
-  exports: ["RefreshJwtService"]
+  exports: ["refreshJwt"]
 })
 class RefreshJwtModule {}
 

@@ -1,4 +1,4 @@
-import { RefreshToken } from "../../entities/refresh_token.entity";
+import { RefreshToken } from "~routes/auth/entities/refresh_token.entity";
 
 export class AuthTokensDTO {
   public constructor(

@@ -1,10 +1,12 @@
 import { Module } from "@nestjs/common";
-import { NodeMailerService } from "../common/providers/node-mailer.provider";
-import { ResetPasswordRequestsController } from "./reset-password-requests.controller";
-import { ResetPasswordRequestsService } from "./reset-password-requests.service";
+import { BcryptModule } from "~common/providers/bcrypt.provider";
+import { NodemailerModule } from "~common/providers/nodemailer.provider";
+import { ResetPasswordRequestsController } from "~routes/reset-password-requests/reset-password-requests.controller";
+import { ResetPasswordRequestsService } from "~routes/reset-password-requests/reset-password-requests.service";
 
 @Module({
+  imports: [NodemailerModule, BcryptModule],
   controllers: [ResetPasswordRequestsController],
-  providers: [ResetPasswordRequestsService, NodeMailerService]
+  providers: [ResetPasswordRequestsService]
 })
 export class ResetPasswordRequestsModule {}

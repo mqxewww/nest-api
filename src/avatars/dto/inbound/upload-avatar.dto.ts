@@ -7,5 +7,5 @@ export class UploadAvatarDTO {
     format: "binary",
     description: "Avatar file compatible with image/jpeg."
   })
-  public file: Express.Multer.File;
+  public file!: Express.Multer.File;
 }

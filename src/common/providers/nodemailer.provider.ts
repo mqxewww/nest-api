@@ -1,13 +1,24 @@
-import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger, Module } from "@nestjs/common";
 import { Transporter, createTransport } from "nodemailer";
-import { ApiError } from "../constants/api-errors.constant";
-import { MailText, MailTextSubject } from "../constants/mail-texts.constant";
-import { NodeMailerResponse } from "../types/node-mailer-response";
+import { ApiError } from "~common/constants/api-errors.constant";
+import { MailText, MailTextSubject } from "~common/constants/mail-texts.constant";
+
+type NodemailerResponse = {
+  accepted: string[];
+  rejected: string[];
+  ehlo: string[];
+  envelopeTime: number;
+  messageTime: number;
+  messageSize: number;
+  response: string;
+  envelope: { from: string; to: string[] };
+  messageId: string;
+};
 
 @Injectable()
-export class NodeMailerService {
+export class NodemailerClass {
   private readonly transporter: Transporter;
-  private readonly logger = new Logger(NodeMailerService.name);
+  private readonly logger = new Logger(NodemailerClass.name);
 
   public constructor() {
     this.transporter = createTransport({
@@ -23,21 +34,21 @@ export class NodeMailerService {
     to: string | string[],
     subject: MailTextSubject,
     params: Record<string, unknown>
-  ): Promise<NodeMailerResponse> {
+  ): Promise<NodemailerResponse> {
     let html = MailText[subject];
 
     for (const key in params)
       if (params.hasOwnProperty(key)) html = html.replace(`{{${key}}}`, `${params[key]}`);
 
     try {
-      const response = (await this.transporter.sendMail({
+      const response: NodemailerResponse = await this.transporter.sendMail({
         to,
         subject,
         html
-      })) as NodeMailerResponse;
+      });
 
       const subjectKey = Object.keys(MailTextSubject).find(
-        (key) => MailTextSubject[key] === subject
+        (key) => MailTextSubject[key as keyof typeof MailTextSubject] === subject
       );
 
       switch (true) {
@@ -61,3 +72,14 @@ export class NodeMailerService {
     }
   }
 }
+
+@Module({
+  providers: [
+    {
+      provide: "nodemailer",
+      useClass: NodemailerClass
+    }
+  ],
+  exports: ["nodemailer"]
+})
+export class NodemailerModule {}
