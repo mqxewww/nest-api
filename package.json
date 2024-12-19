@@ -1,9 +1,9 @@
 {
   "name": "nest-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "NestJS API where I try everything that comes to mind.",
   "engines": {
-    "node": "=20.15.0"
+    "node": "=22.12.0"
   },
   "scripts": {
     "start:dev": "nest start --watch",
@@ -20,7 +20,7 @@
   },
   "author": {
     "name": "NOIZET Maxence",
-    "email": "noizetmaxence@proton.me",
+    "email": "noizetmaxence@pm.me",
     "url": "https://github.com/mqxewww"
   },
   "repository": {

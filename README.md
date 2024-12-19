@@ -6,7 +6,7 @@ NestJS API where I try everything that comes to mind.
 
 ## Setup
 
-- Execute `./setup.sh`, then go to `./config/.env` and fill in the values
+- Execute `./setup.sh`, then go to `./config/.env` and fill in the values.
 
 ## Features :sparkles:
 
@@ -19,4 +19,4 @@ NestJS API where I try everything that comes to mind.
 - [x] Image streaming and upload for avatars with `nestjs` and `express`
 - [x] Send emails with `nodemailer` (only gmail service) as a custom nest provider
 
-~ mqxewww, 2023 - 2024
+~ Maxence 'mqxewww' NOIZET, 2023-present
