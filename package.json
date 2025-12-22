@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "NestJS API where I try everything that comes to mind.",
   "engines": {
-    "node": "=22.14.0"
+    "node": "=22.20.0"
   },
   "scripts": {
     "start:dev": "nest start --watch",
@@ -55,7 +55,7 @@
     "joi": "^17.13.3",
     "moment": "^2.30.1",
     "nestjs-pino": "^4.1.0",
-    "nodemailer": "^6.9.14",
+    "nodemailer": "^7.0.12",
     "pino-http": "^10.2.0",
     "pino-pretty": "^11.2.1",
     "reflect-metadata": "^0.2.2",
@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@nestjs/cli": "^10.4.2",
+    "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^10.1.2",
     "@nestjs/testing": "^11.0.14",
     "@types/bcrypt": "^5.0.2",
